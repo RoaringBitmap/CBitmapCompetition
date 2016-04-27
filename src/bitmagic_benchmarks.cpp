@@ -37,14 +37,21 @@ static void printusage(char *command) {
         "benchmarks/realdata/census1881\n",
         command);
     ;
+    printf("the -v flag turns on verbose mode");
+
 }
 
 int main(int argc, char **argv) {
     int c;
     const char *extension = ".txt";
-    while ((c = getopt(argc, argv, "e:h")) != -1) switch (c) {
+    bool verbose = false;
+    uint64_t data[5];
+    while ((c = getopt(argc, argv, "ve:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
+            break;
+        case 'v':
+            verbose = true;
             break;
         case 'h':
             printusage(argv[0]);
@@ -76,7 +83,7 @@ int main(int argc, char **argv) {
     std::vector<bm::bvector<> > bitmaps = create_all_bitmaps(howmany, numbers, count);
     RDTSC_FINAL(cycles_final);
     if (bitmaps.empty()) return -1;
-    printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
+    if(verbose) printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
     uint64_t totalsize = 0;
 
     for (int i = 0; i < (int) count; ++i) {
@@ -86,8 +93,9 @@ int main(int argc, char **argv) {
         bv.calc_stat(&st);
         totalsize += st.memory_used;
     }
+    data[0] = totalsize;
 
-    printf("Total size in bytes =  %" PRIu64 " \n", totalsize);
+    if(verbose) printf("Total size in bytes =  %" PRIu64 " \n", totalsize);
 
     uint64_t successive_and = 0;
     uint64_t successive_or = 0;
@@ -99,7 +107,8 @@ int main(int argc, char **argv) {
         successive_and += tempand.count();
     }
     RDTSC_FINAL(cycles_final);
-    printf("Successive intersections on %zu bitmaps took %" PRIu64 " cycles\n", count,
+    data[1] = cycles_final - cycles_start;
+    if(verbose) printf("Successive intersections on %zu bitmaps took %" PRIu64 " cycles\n", count,
            cycles_final - cycles_start);
 
     RDTSC_START(cycles_start);
@@ -108,7 +117,8 @@ int main(int argc, char **argv) {
         successive_or += tempor.count();
     }
     RDTSC_FINAL(cycles_final);
-    printf("Successive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+    data[2] = cycles_final - cycles_start;
+    if(verbose) printf("Successive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
            cycles_final - cycles_start);
 
     RDTSC_START(cycles_start);
@@ -120,9 +130,11 @@ int main(int argc, char **argv) {
         total_or = totalorbitmap.count();
     }
     RDTSC_FINAL(cycles_final);
-    printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+    data[3] = cycles_final - cycles_start;
+    if(verbose) printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
            cycles_final - cycles_start);
-    printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
+    if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
+    printf(" %40" PRIu64 " %40" PRIu64 " %40" PRIu64 " %40" PRIu64 "\n",data[0],data[1],data[2],data[3]);
 
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);

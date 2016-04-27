@@ -1,0 +1,6 @@
+[submodule "CRoaring"]
+	path = CRoaring
+	url = git@github.com:RoaringBitmap/CRoaring.git
+[submodule "BitMagic"]
+	path = BitMagic
+	url = git@github.com:lemire/BitMagic.git

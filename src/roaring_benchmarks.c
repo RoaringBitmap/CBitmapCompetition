@@ -22,20 +22,27 @@ static void printusage(char *command) {
         command);
     ;
     printf("the -r flag turns on run optimization");
+    printf("the -v flag turns on verbose mode");
+
 }
 
 
 int main(int argc, char **argv) {
     int c;
     bool runoptimize = false;
+    bool verbose = false;
     char *extension = ".txt";
-    while ((c = getopt(argc, argv, "re:h")) != -1) switch (c) {
+    uint64_t data[5];
+    while ((c = getopt(argc, argv, "vre:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
             break;
+        case 'v':
+            verbose = true;
+            break;
         case 'r':
             runoptimize = true;
-            printf("enabling run optimization\n");
+            if(verbose) printf("enabling run optimization\n");
             break;
         case 'h':
             printusage(argv[0]);
@@ -67,14 +74,14 @@ int main(int argc, char **argv) {
     roaring_bitmap_t **bitmaps = create_all_bitmaps(howmany, numbers, count);
     RDTSC_FINAL(cycles_final);
     if (bitmaps == NULL) return -1;
-    printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
+    if(verbose) printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
     uint64_t totalsize = 0;
     for (int i = 0; i < (int) count; ++i) {
         if(runoptimize) roaring_bitmap_run_optimize(bitmaps[i]);
         totalsize += roaring_bitmap_portable_size_in_bytes(bitmaps[i]);
     }
-
-    printf("Total size in bytes =  %" PRIu64 " \n", totalsize);
+    data[0] = totalsize;
+    if(verbose) printf("Total size in bytes =  %" PRIu64 " \n", totalsize);
 
     uint64_t successive_and = 0;
     uint64_t successive_or = 0;
@@ -88,7 +95,9 @@ int main(int argc, char **argv) {
         roaring_bitmap_free(tempand);
     }
     RDTSC_FINAL(cycles_final);
-    printf("Successive intersections on %zu bitmaps took %" PRIu64 " cycles\n", count,
+    data[1] = cycles_final - cycles_start;
+
+    if(verbose) printf("Successive intersections on %zu bitmaps took %" PRIu64 " cycles\n", count,
            cycles_final - cycles_start);
 
     RDTSC_START(cycles_start);
@@ -99,17 +108,20 @@ int main(int argc, char **argv) {
         roaring_bitmap_free(tempor);
     }
     RDTSC_FINAL(cycles_final);
-    printf("Successive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+    if(verbose) printf("Successive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
            cycles_final - cycles_start);
+    data[2] = cycles_final - cycles_start;
     RDTSC_START(cycles_start);
     roaring_bitmap_t * totalorbitmap = roaring_bitmap_or_many(count,(const roaring_bitmap_t **)bitmaps);
     total_or = roaring_bitmap_get_cardinality(totalorbitmap);
     roaring_bitmap_free(totalorbitmap);
     RDTSC_FINAL(cycles_final);
-    printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+    if(verbose) printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
            cycles_final - cycles_start);
-    printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
+    data[3] = cycles_final - cycles_start;
+    if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
 
+    printf(" %40" PRIu64 " %40" PRIu64 " %40" PRIu64 " %40" PRIu64 "\n",data[0],data[1],data[2],data[3]);
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);
         numbers[i] = NULL;  // paranoid
