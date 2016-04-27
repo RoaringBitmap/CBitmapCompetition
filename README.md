@@ -13,6 +13,8 @@ For example, we might have 200 bitmaps.
 ## Usage
 
 ``bash
+git clone --recursive git@github.com:RoaringBitmap/CBitmapCompetition.git
+cd CBitmapCompetition
 make
 make test
 ``
