@@ -12,11 +12,10 @@ For example, we might have 200 bitmaps.
 
 ## Usage
 
-``bash
-git clone --recursive git@github.com:RoaringBitmap/CBitmapCompetition.git
-cd CBitmapCompetition
+```bash
+git submodule foreach git pull origin master
 make
 make test
-``
+```
 
 
