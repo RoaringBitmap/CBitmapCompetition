@@ -28,6 +28,7 @@ make test
 If one of the submodules changes and you need to update it:
 ```bash
 git submodule foreach git pull origin master
+make clean
 make 
 make test
 git commit -a
