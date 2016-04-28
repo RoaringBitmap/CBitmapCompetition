@@ -1,4 +1,7 @@
+#ifndef
 #define _GNU_SOURCE
+#endif 
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
