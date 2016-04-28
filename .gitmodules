@@ -4,3 +4,6 @@
 [submodule "BitMagic"]
 	path = BitMagic
 	url = git@github.com:lemire/BitMagic.git
+[submodule "EWAHBoolArray"]
+	path = EWAHBoolArray
+	url = git@github.com:lemire/EWAHBoolArray.git
