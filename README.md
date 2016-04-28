@@ -12,10 +12,26 @@ For example, we might have 200 bitmaps.
 
 ## Usage
 
+To pull all the submodules:
 ```bash
-git submodule foreach git pull origin master
+git pull && git submodule init && git submodule update && git submodule status
+```
+
+```bash
 make
 make test
+```
+
+
+## Usage for developers of the project
+
+If one of the submodules changes and you need to update it:
+```bash
+git submodule foreach git pull origin master
+make 
+make test
+git commit -a
+git push
 ```
 
 
