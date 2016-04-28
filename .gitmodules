@@ -1,9 +1,9 @@
 [submodule "CRoaring"]
 	path = CRoaring
-	url = git@github.com:RoaringBitmap/CRoaring.git
+	url = https://github.com/RoaringBitmap/CRoaring.git
 [submodule "BitMagic"]
 	path = BitMagic
-	url = git@github.com:lemire/BitMagic.git
+	url = https://github.com/lemire/BitMagic.git
 [submodule "EWAHBoolArray"]
 	path = EWAHBoolArray
-	url = git@github.com:lemire/EWAHBoolArray.git
+	url = https://github.com/lemire/EWAHBoolArray.git
