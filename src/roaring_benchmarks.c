@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
 
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
 
-    printf(" %40" PRIu64 " %40" PRIu64 " %40" PRIu64 " %40" PRIu64 " %40" PRIu64 "\n",data[0],data[1],data[2],data[3],data[4]);
+    printf(" %30" PRIu64 " %30" PRIu64 " %30" PRIu64 " %30" PRIu64 " %30" PRIu64 "\n",data[0],data[1],data[2],data[3],data[4]);
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);
         numbers[i] = NULL;  // paranoid
