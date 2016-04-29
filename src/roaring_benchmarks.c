@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
     bool runoptimize = false;
     bool verbose = false;
     char *extension = ".txt";
-    uint64_t data[5];
+    uint64_t data[6];
     while ((c = getopt(argc, argv, "vre:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
@@ -119,9 +119,18 @@ int main(int argc, char **argv) {
     if(verbose) printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
            cycles_final - cycles_start);
     data[3] = cycles_final - cycles_start;
+    RDTSC_START(cycles_start);
+    roaring_bitmap_t * totalorbitmapheap = roaring_bitmap_or_many_heap(count,(const roaring_bitmap_t **)bitmaps);
+    total_or = roaring_bitmap_get_cardinality(totalorbitmapheap);
+    roaring_bitmap_free(totalorbitmapheap);
+    RDTSC_FINAL(cycles_final);
+    if(verbose) printf("Total unions with heap on %zu bitmaps took %" PRIu64 " cycles\n", count,
+           cycles_final - cycles_start);
+    data[4] = cycles_final - cycles_start;
+
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
 
-    printf(" %40" PRIu64 " %40" PRIu64 " %40" PRIu64 " %40" PRIu64 "\n",data[0],data[1],data[2],data[3]);
+    printf(" %40" PRIu64 " %40" PRIu64 " %40" PRIu64 " %40" PRIu64 " %40" PRIu64 "\n",data[0],data[1],data[2],data[3],data[4]);
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);
         numbers[i] = NULL;  // paranoid
