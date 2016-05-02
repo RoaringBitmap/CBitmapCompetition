@@ -1,6 +1,8 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+#include <cstdint>
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -14,21 +16,43 @@ extern "C" {
 }
 #endif
 
-#include "bm.h" /* bit magic */
-#include "bmserial.h" /* bit magic, serialization routines */
+#include "allocator.h"
+template <>
+uint64_t MemoryCountingAllocator<uint32_t>::memory_usage = 0;
+
+template <class T>
+void initializeMemUsageCounter()  {
+    MemoryCountingAllocator<T>::memory_usage = 0;
+}
+
+template <class T>
+uint64_t getMemUsageInBytes()  {
+    return MemoryCountingAllocator<T>::memory_usage;
+}
+
+
+
+typedef std::vector<uint32_t,MemoryCountingAllocator<uint32_t> >  vector;
+
+
+
+
 /**
  * Once you have collected all the integers, build the bitmaps.
  */
-static std::vector<bm::bvector<> > create_all_bitmaps(size_t *howmany,
+static std::vector<vector > create_all_bitmaps(size_t *howmany,
         uint32_t **numbers, size_t count) {
-    if (numbers == NULL) return std::vector<bm::bvector<> >();
-    std::vector<bm::bvector<> > answer(count);
+    if (numbers == NULL) return std::vector<vector >();
+    std::vector<vector> answer(count);
+
     for (size_t i = 0; i < count; i++) {
-        bm::bvector<> & bm = answer[i];
+        vector & bm = answer[i];
         uint32_t * mynumbers = numbers[i];
         for(size_t j = 0; j < howmany[i] ; ++j) {
-            bm.set(mynumbers[j]);
+            bm.push_back(mynumbers[j]);
+
         }
+        bm.shrink_to_fit();
     }
     return answer;
 }
@@ -45,9 +69,11 @@ static void printusage(char *command) {
 
 int main(int argc, char **argv) {
     int c;
+    MemoryCountingAllocator<uint32_t> x;
     const char *extension = ".txt";
     bool verbose = false;
     uint64_t data[5];
+    initializeMemUsageCounter<uint32_t>();
     while ((c = getopt(argc, argv, "ve:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
@@ -68,6 +94,7 @@ int main(int argc, char **argv) {
     char *dirname = argv[optind];
     size_t count;
 
+
     size_t *howmany = NULL;
     uint32_t **numbers =
         read_all_integer_files(dirname, extension, &howmany, &count);
@@ -86,19 +113,11 @@ int main(int argc, char **argv) {
     uint64_t cycles_start = 0, cycles_final = 0;
 
     RDTSC_START(cycles_start);
-    std::vector<bm::bvector<> > bitmaps = create_all_bitmaps(howmany, numbers, count);
+    std::vector<vector > bitmaps = create_all_bitmaps(howmany, numbers, count);
     RDTSC_FINAL(cycles_final);
     if (bitmaps.empty()) return -1;
     if(verbose) printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
-    uint64_t totalsize = 0;
-
-    for (int i = 0; i < (int) count; ++i) {
-        bm::bvector<> & bv = bitmaps[i];
-        bv.optimize();  // we optimize the bit vectors prior to as recommended
-        bm::bvector<>::statistics st;
-        bv.calc_stat(&st);
-        totalsize += st.memory_used;
-    }
+    uint64_t totalsize = getMemUsageInBytes<uint32_t>();
     data[0] = totalsize;
 
     if(verbose) printf("Total size in bytes =  %" PRIu64 " \n", totalsize);
@@ -109,8 +128,9 @@ int main(int argc, char **argv) {
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
-        bm::bvector<> tempand = bitmaps[i] & bitmaps[i + 1];
-        successive_and += tempand.count();
+        vector v(bitmaps[i].size() + bitmaps[i+1].size());
+        vector::iterator iend = set_intersection(bitmaps[i].begin(), bitmaps[i].end(),bitmaps[i+1].begin(), bitmaps[i+1].end(),v.begin());
+        successive_and += iend - v.begin();
     }
     RDTSC_FINAL(cycles_final);
     data[1] = cycles_final - cycles_start;
@@ -119,8 +139,9 @@ int main(int argc, char **argv) {
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
-        bm::bvector<> tempor = bitmaps[i] | bitmaps[i + 1];
-        successive_or += tempor.count();
+        vector v(bitmaps[i].size() + bitmaps[i+1].size());
+        vector::iterator iend = set_union(bitmaps[i].begin(), bitmaps[i].end(),bitmaps[i+1].begin(), bitmaps[i+1].end(),v.begin());
+        successive_or += iend - v.begin();
     }
     RDTSC_FINAL(cycles_final);
     data[2] = cycles_final - cycles_start;
@@ -129,11 +150,16 @@ int main(int argc, char **argv) {
 
     RDTSC_START(cycles_start);
     if(count>1) {
-        bm::bvector<> totalorbitmap = bitmaps[0] | bitmaps[1];
+        vector v(bitmaps[0].size() + bitmaps[1].size());
+        vector::iterator iend = set_union(bitmaps[0].begin(), bitmaps[0].end(),bitmaps[1].begin(), bitmaps[1].end(),v.begin());
+        v.resize(iend-v.begin());
         for (int i = 2; i < (int)count ; ++i) {
-            totalorbitmap |= bitmaps[i];
+            vector newv(v.size() + bitmaps[i].size());
+            iend = set_union(v.begin(), v.end(),bitmaps[i].begin(), bitmaps[i].end(),newv.begin());
+            newv.resize(iend-newv.begin());
+            v.swap(newv);
         }
-        total_or = totalorbitmap.count();
+        total_or = v.size();
     }
     RDTSC_FINAL(cycles_final);
     data[3] = cycles_final - cycles_start;

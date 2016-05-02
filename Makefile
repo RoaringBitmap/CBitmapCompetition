@@ -21,7 +21,7 @@ else
   CROARINGLIBNAME=roaringlib/libroaring.so
 endif
 
-EXECUTABLES=roaring_benchmarks bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks
+EXECUTABLES=roaring_benchmarks bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks
 
 all: $(EXECUTABLES)
 
@@ -39,6 +39,9 @@ ewah32_benchmarks: src/ewah32_benchmarks.cpp
 
 ewah64_benchmarks: src/ewah64_benchmarks.cpp
 	$(CXX) $(CXXFLAGS)  -o ewah64_benchmarks ./src/ewah64_benchmarks.cpp -IEWAHBoolArray/headers -ICRoaring/benchmarks
+
+stl_vector_benchmarks: src/stl_vector_benchmarks.cpp src/allocator.h
+	$(CXX) $(CXXFLAGS)  -o stl_vector_benchmarks ./src/stl_vector_benchmarks.cpp  -ICRoaring/benchmarks
 
 libroaring:
 	@(mkdir -p roaringlib && cd roaringlib && cmake ../CRoaring >/dev/null && make >/dev/null)

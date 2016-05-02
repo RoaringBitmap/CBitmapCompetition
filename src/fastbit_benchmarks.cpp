@@ -78,6 +78,10 @@ int main(int argc, char **argv) {
             extension, dirname);
         return -1;
     }
+    uint64_t totalcard = 0;
+    for (size_t i = 0; i < count; i++) {
+      totalcard += howmany[i];
+    }
 
     uint64_t cycles_start = 0, cycles_final = 0;
 
@@ -109,7 +113,7 @@ int main(int argc, char **argv) {
     RDTSC_FINAL(cycles_final);
     data[1] = cycles_final - cycles_start;
     if(verbose) printf("Successive intersections on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
+                           cycles_final - cycles_start);
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
@@ -120,7 +124,7 @@ int main(int argc, char **argv) {
     RDTSC_FINAL(cycles_final);
     data[2] = cycles_final - cycles_start;
     if(verbose) printf("Successive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
+                           cycles_final - cycles_start);
 
     RDTSC_START(cycles_start);
     if(count>1) {
@@ -134,9 +138,9 @@ int main(int argc, char **argv) {
     RDTSC_FINAL(cycles_final);
     data[3] = cycles_final - cycles_start;
     if(verbose) printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
+                           cycles_final - cycles_start);
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
-    printf(" %40" PRIu64 " %40" PRIu64 " %40" PRIu64 " %40" PRIu64 "\n",data[0],data[1],data[2],data[3]);
+    printf(" %30.2f %40" PRIu64 " %40" PRIu64 " %40" PRIu64 "\n",data[0]*8.0/totalcard,data[1],data[2],data[3]);
 
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);
