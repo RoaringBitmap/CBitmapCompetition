@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <unordered_set>
 #include <list>
 #ifdef __cplusplus
 extern "C" {
@@ -28,29 +29,44 @@ uint64_t getMemUsageInBytes()  {
 
 
 
-typedef std::vector<uint32_t,MemoryCountingAllocator<uint32_t> >  vector;
-
+typedef std::unordered_set<uint32_t,std::hash<uint32_t>,std::equal_to<uint32_t>,MemoryCountingAllocator<uint32_t> >  hashset;
 
 
 
 /**
  * Once you have collected all the integers, build the bitmaps.
  */
-static std::vector<vector > create_all_bitmaps(size_t *howmany,
+static std::vector<hashset > create_all_bitmaps(size_t *howmany,
         uint32_t **numbers, size_t count) {
-    if (numbers == NULL) return std::vector<vector >();
-    std::vector<vector> answer(count);
-
+    if (numbers == NULL) return std::vector<hashset >();
+    std::vector<hashset> answer(count);
     for (size_t i = 0; i < count; i++) {
-        vector & bm = answer[i];
+        hashset & bm = answer[i];
         uint32_t * mynumbers = numbers[i];
         for(size_t j = 0; j < howmany[i] ; ++j) {
-            bm.push_back(mynumbers[j]);
-
+            bm.insert(mynumbers[j]);
         }
-        bm.shrink_to_fit();
     }
     return answer;
+}
+
+
+static void intersection(hashset& h1, hashset& h2, hashset& answer) {
+  if(h1.size() > h2.size()) {
+    intersection(h2,h1,answer);
+    return;
+  }
+  for(hashset::iterator i = h1.begin(); i != h1.end(); i++) {
+    if(h2.find(*i) != h2.end())
+      answer.insert(*i);
+  }
+}
+
+
+static void inplace_union(hashset& h1, hashset& h2) {
+  for(hashset::iterator i = h2.begin(); i != h2.end(); i++) {
+    h1.insert(*i);
+  }
 }
 
 static void printusage(char *command) {
@@ -108,7 +124,7 @@ int main(int argc, char **argv) {
     uint64_t cycles_start = 0, cycles_final = 0;
 
     RDTSC_START(cycles_start);
-    std::vector<vector > bitmaps = create_all_bitmaps(howmany, numbers, count);
+    std::vector<hashset > bitmaps = create_all_bitmaps(howmany, numbers, count);
     RDTSC_FINAL(cycles_final);
     if (bitmaps.empty()) return -1;
     if(verbose) printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
@@ -123,9 +139,9 @@ int main(int argc, char **argv) {
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
-        vector v(bitmaps[i].size() + bitmaps[i+1].size());
-        vector::iterator iend = set_intersection(bitmaps[i].begin(), bitmaps[i].end(),bitmaps[i+1].begin(), bitmaps[i+1].end(),v.begin());
-        successive_and += iend - v.begin();
+        hashset v;
+        intersection(bitmaps[i], bitmaps[i + 1], v);
+        successive_and += v.size();
     }
     RDTSC_FINAL(cycles_final);
     data[1] = cycles_final - cycles_start;
@@ -134,9 +150,9 @@ int main(int argc, char **argv) {
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
-        vector v(bitmaps[i].size() + bitmaps[i+1].size());
-        vector::iterator iend = set_union(bitmaps[i].begin(), bitmaps[i].end(),bitmaps[i+1].begin(), bitmaps[i+1].end(),v.begin());
-        successive_or += iend - v.begin();
+        hashset v (bitmaps[i]);
+        inplace_union(v, bitmaps[i + 1]);
+        successive_or += v.size();
     }
     RDTSC_FINAL(cycles_final);
     data[2] = cycles_final - cycles_start;
@@ -145,14 +161,10 @@ int main(int argc, char **argv) {
 
     RDTSC_START(cycles_start);
     if(count>1) {
-        vector v(bitmaps[0].size() + bitmaps[1].size());
-        vector::iterator iend = set_union(bitmaps[0].begin(), bitmaps[0].end(),bitmaps[1].begin(), bitmaps[1].end(),v.begin());
-        v.resize(iend-v.begin());
+        hashset v (bitmaps[0]);
+        inplace_union(v, bitmaps[1]);
         for (int i = 2; i < (int)count ; ++i) {
-            vector newv(v.size() + bitmaps[i].size());
-            iend = set_union(v.begin(), v.end(),bitmaps[i].begin(), bitmaps[i].end(),newv.begin());
-            newv.resize(iend-newv.begin());
-            v.swap(newv);
+            inplace_union(v, bitmaps[i]);
         }
         total_or = v.size();
     }

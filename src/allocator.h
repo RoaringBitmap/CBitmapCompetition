@@ -9,6 +9,7 @@
 #include <vector>
 
 
+uint64_t memory_usage;
 
 // use this when calling STL object if you want
 // to keep track of memory usage
@@ -23,7 +24,6 @@ public:
     typedef std::size_t size_type;
     typedef std::ptrdiff_t difference_type;
 
-    static uint64_t memory_usage;
 
     // rebind allocator to type U
     template <class U> struct rebind {
