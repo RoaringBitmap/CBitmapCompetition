@@ -7,3 +7,6 @@
 [submodule "EWAHBoolArray"]
 	path = EWAHBoolArray
 	url = https://github.com/lemire/EWAHBoolArray.git
+[submodule "cbitset"]
+	path = cbitset
+	url = https://github.com/lemire/cbitset.git

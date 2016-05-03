@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export LD_LIBRARY_PATH=$DIR/../roaringlib/:$LD_LIBRARY_PATH
-declare -a commands=('stl_vector_benchmarks' 'stl_hashset_benchmarks' 'bitmagic_benchmarks' 'roaring_benchmarks -r' 'roaring_benchmarks' 'ewah32_benchmarks'  'ewah64_benchmarks' );
+declare -a commands=('bitset_benchmarks' 'stl_vector_benchmarks' 'stl_hashset_benchmarks' 'bitmagic_benchmarks' 'roaring_benchmarks -r' 'roaring_benchmarks' 'ewah32_benchmarks'  'ewah64_benchmarks' );
 echo "# For data set, we print data size (in bits per value), successive intersections, successive unions and total unions (in cycles) [for roaring we also report the heap-based total union time in cycles]"
 for f in census1881_srt  census-income_srt census1881      census-income weather_sept_85_srt  wikileaks-noquotes_srt  wikileaks-noquotes; do
   echo "# processing file " $f
