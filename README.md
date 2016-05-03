@@ -18,10 +18,11 @@ Thus, we output at least 4 numbers:
 - The number of CPU cycles used to compute the successive unions.
 - The number of CPU cycles used to compute the total union.
 
-For each competitive technique, we...
+For each competitive technique, we apply the following recipe:
 
-* Put any dependency as a submodule of the project.
-* Put the benchmarking code in a separate executable file in the ``src`` directory. Having separate files for each technique introduces redundancies and possibly errors, but it keeps the complexity of the project low. Each executable file is simple and thus easy to examine and debug.
+* We assume a Linux-like environment.
+* We put any non-standard dependency as a submodule of the project.
+* We put the benchmarking code in a separate executable file in the ``src`` directory. Having separate files for each technique introduces redundancies and possibly errors, but it keeps the complexity of the project low. Each executable file is simple and thus easy to examine and debug.
 * The executable should be able to take as the sole parameter a directory name containing text files where each text file is a comma-separated list of sorted integers (e.g., one of these directories: https://github.com/RoaringBitmap/CRoaring/tree/master/benchmarks/realdata). We have a header file in the CRoaring project to help parsing such data files... https://github.com/RoaringBitmap/CRoaring/blob/master/benchmarks/numbersfromtextfiles.h Consider using it.
 * The executable should output the 4 performance numbers (memory usage, number of cycles...) on a single line, separated by spaces. If anything else is outputted, it should be prefixed by the '#' character. It is allowed for the executable to have a verbose flag (-v) that provides more insight into the results.
 * The  ``Makefile`` must be such that  ``make`` will build the executable.
@@ -35,6 +36,7 @@ To pull all the submodules:
 ```bash
 git pull && git submodule init && git submodule update && git submodule status
 ```
+This needs to be done once at the beginning, and whenever the project has updated a submodule.
 
 ```bash
 make
