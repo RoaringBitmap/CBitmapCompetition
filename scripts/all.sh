@@ -1,4 +1,7 @@
 #!/bin/bash
+######################
+# To add a technique, simply append the file name of your executable to the commands array below
+#######################
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export LD_LIBRARY_PATH=$DIR/../roaringlib/:$LD_LIBRARY_PATH
 declare -a commands=('bitset_benchmarks' 'stl_vector_benchmarks' 'stl_hashset_benchmarks' 'bitmagic_benchmarks' 'roaring_benchmarks -r' 'roaring_benchmarks' 'ewah32_benchmarks'  'ewah64_benchmarks' );

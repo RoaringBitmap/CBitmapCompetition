@@ -1,4 +1,9 @@
 # minimalist makefile
+######################
+# To add a competitive technique, simply add your code in the src subdirectory (follow the README.md instructions) and
+# add your executable file name to the EXECUTABLES variable below.
+# along with a target to build it.
+#######################
 .SUFFIXES:
 #
 .SUFFIXES: .cpp .o .c .h

@@ -1,5 +1,5 @@
 // this requires fastbit: https://github.com/gingi/fastbit
-
+// it is currently non-functional and it is not clear whether it will ever be completed
 #define _GNU_SOURCE
 #include <iostream>
 #include <algorithm>
