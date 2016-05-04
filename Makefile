@@ -26,7 +26,7 @@ else
   CROARINGLIBNAME=roaringlib/libroaring.so
 endif
 
-EXECUTABLES=roaring_benchmarks bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks bitset_benchmarks
+EXECUTABLES=wah32_benchmarks concise_benchmarks roaring_benchmarks bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks bitset_benchmarks
 
 all: $(EXECUTABLES)
 
@@ -41,6 +41,13 @@ bitmagic_benchmarks: src/bitmagic_benchmarks.cpp
 
 ewah32_benchmarks: src/ewah32_benchmarks.cpp
 	$(CXX) $(CXXFLAGS)  -o ewah32_benchmarks ./src/ewah32_benchmarks.cpp -IEWAHBoolArray/headers -ICRoaring/benchmarks
+
+wah32_benchmarks: src/wah32_benchmarks.cpp
+	$(CXX) $(CXXFLAGS)  -o wah32_benchmarks ./src/wah32_benchmarks.cpp -IConcise/include -ICRoaring/benchmarks
+
+concise_benchmarks: src/concise_benchmarks.cpp
+	$(CXX) $(CXXFLAGS)  -o concise_benchmarks ./src/concise_benchmarks.cpp -IConcise/include -ICRoaring/benchmarks
+
 
 ewah64_benchmarks: src/ewah64_benchmarks.cpp
 	$(CXX) $(CXXFLAGS)  -o ewah64_benchmarks ./src/ewah64_benchmarks.cpp -IEWAHBoolArray/headers -ICRoaring/benchmarks
