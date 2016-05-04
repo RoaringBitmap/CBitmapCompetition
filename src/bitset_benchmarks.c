@@ -1,4 +1,6 @@
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include "benchmark.h"
 #include "numbersfromtextfiles.h"
 #include "bitset.h"
