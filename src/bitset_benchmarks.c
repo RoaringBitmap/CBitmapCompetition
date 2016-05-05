@@ -30,6 +30,10 @@ static void printusage(char *command) {
 
 }
 
+int bitset_size_compare (const void * a, const void * b) {
+  return ( bitset_size_in_bytes((const bitset_t*)a) - bitset_size_in_bytes((const bitset_t*)b) );
+}
+
 
 int main(int argc, char **argv) {
     int c;
@@ -129,6 +133,24 @@ int main(int argc, char **argv) {
     if(verbose) printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
            cycles_final - cycles_start);
     data[3] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    if(count>1){
+      bitset_t **sortedbitmaps = (bitset_t**) malloc(sizeof(*sortedbitmaps) * count);
+      memcpy(sortedbitmaps, bitmaps, sizeof(*sortedbitmaps) * count);
+      qsort (sortedbitmaps, count, sizeof(bitset_t *), bitset_size_compare);
+      bitset_t * totalorbitmap = bitset_copy(sortedbitmaps[0]);
+      for(size_t i = 1; i < count; ++i) {
+        if(!bitset_inplace_union(totalorbitmap,sortedbitmaps[i])) printf("failed to compute union");
+      }
+      total_or = bitset_count(totalorbitmap);
+      bitset_free(totalorbitmap);
+      free(sortedbitmaps);
+    }
+    RDTSC_FINAL(cycles_final);
+    if(verbose) printf("Total sorted unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+           cycles_final - cycles_start);
+    data[4] = cycles_final - cycles_start;
 
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
 
