@@ -64,16 +64,6 @@ static void intersection(hashset& h1, hashset& h2, hashset& answer) {
   }
 }
 
-static void hashunion(hashset& h1, hashset& h2, hashset& answer) {
-  answer.clear();
-  for(hashset::iterator i = h2.begin(); i != h2.end(); i++) {
-    answer.insert(*i);
-  }
-  for(hashset::iterator i = h1.begin(); i != h1.end(); i++) {
-    answer.insert(*i);
-  }
-}
-
 static void inplace_union(hashset& h1, hashset& h2) {
   for(hashset::iterator i = h2.begin(); i != h2.end(); i++) {
     h1.insert(*i);
