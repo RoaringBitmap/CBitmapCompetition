@@ -8,6 +8,8 @@
 #include <vector>
 #include <unordered_set>
 #include <list>
+#include <queue>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,7 +32,6 @@ uint64_t getMemUsageInBytes()  {
 
 
 typedef std::unordered_set<uint32_t,std::hash<uint32_t>,std::equal_to<uint32_t>,MemoryCountingAllocator<uint32_t> >  hashset;
-
 
 
 /**
@@ -56,12 +57,22 @@ static void intersection(hashset& h1, hashset& h2, hashset& answer) {
     intersection(h2,h1,answer);
     return;
   }
+  answer.clear();
   for(hashset::iterator i = h1.begin(); i != h1.end(); i++) {
     if(h2.find(*i) != h2.end())
       answer.insert(*i);
   }
 }
 
+static void hashunion(hashset& h1, hashset& h2, hashset& answer) {
+  answer.clear();
+  for(hashset::iterator i = h2.begin(); i != h2.end(); i++) {
+    answer.insert(*i);
+  }
+  for(hashset::iterator i = h1.begin(); i != h1.end(); i++) {
+    answer.insert(*i);
+  }
+}
 
 static void inplace_union(hashset& h1, hashset& h2) {
   for(hashset::iterator i = h2.begin(); i != h2.end(); i++) {
@@ -78,6 +89,67 @@ static void printusage(char *command) {
     printf("the -v flag turns on verbose mode");
 
 }
+
+
+
+static hashset  fast_logicalor(size_t n, hashset **inputs) {
+	  class StdHashSetPtr {
+
+	  public:
+	    StdHashSetPtr(hashset *p, bool o) : ptr(p), own(o) {}
+	    hashset *ptr;
+	    bool own; // whether to clean
+
+	    bool operator<(const StdHashSetPtr &o) const {
+	      return o.ptr->size() < ptr->size(); // backward on purpose
+	    }
+	  };
+
+	  if (n == 0) {
+		return hashset();
+	  }
+	  if (n == 1) {
+	    return hashset(*inputs[0]);
+	  }
+	  std::priority_queue<StdHashSetPtr> pq;
+	  for (size_t i = 0; i < n; i++) {
+	    // could use emplace
+	    pq.push(StdHashSetPtr(inputs[i], false));
+	  }
+	  while (pq.size() > 2) {
+
+	    StdHashSetPtr x1 = pq.top();
+	    pq.pop();
+
+	    StdHashSetPtr x2 = pq.top();
+	    pq.pop();
+	    hashset * buffer = new hashset();
+      hashunion(*(x1.ptr),*(x2.ptr),*buffer);
+	    if (x1.own) {
+	      delete x1.ptr;
+	    }
+	    if (x2.own) {
+	      delete x2.ptr;
+	    }
+	    pq.push(StdHashSetPtr(buffer, true));
+	  }
+	  StdHashSetPtr x1 = pq.top();
+	  pq.pop();
+
+	  StdHashSetPtr x2 = pq.top();
+	  pq.pop();
+
+	  hashset  container;
+    hashunion(*(x1.ptr),*(x2.ptr),container);
+	  if (x1.own) {
+	    delete x1.ptr;
+	  }
+	  if (x2.own) {
+	    delete x2.ptr;
+	  }
+	  return container;
+	}
+
 
 int main(int argc, char **argv) {
     int c;
@@ -173,8 +245,21 @@ int main(int argc, char **argv) {
     }
     RDTSC_FINAL(cycles_final);
     data[3] = cycles_final - cycles_start;
-    if(verbose) printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+    if(verbose) printf("Total naive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
                            cycles_final - cycles_start);
+    RDTSC_START(cycles_start);
+    if(count>1) {
+        hashset  ** allofthem = new  hashset* [count];
+        for(int i = 0 ; i < (int) count; ++i) allofthem[i] = & bitmaps[i];
+        hashset totalorbitmap = fast_logicalor(count, allofthem);
+        total_or = totalorbitmap.size();
+        delete[] allofthem;
+    }
+    RDTSC_FINAL(cycles_final);
+    data[4] = cycles_final - cycles_start;
+    if(verbose) printf("Total heap unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+                           cycles_final - cycles_start);
+
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
     printf(" %20.2f %20.2f %20.2f %20.2f %20.2f \n",
       data[0]*8.0/totalcard,

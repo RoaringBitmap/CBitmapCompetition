@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <vector>
 #include <list>
+#include <queue>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -149,7 +151,7 @@ int main(int argc, char **argv) {
       data[2]*1.0/successivecard,
       data[3]*1.0/totalcard,
       data[4]*1.0/totalcard);
-      
+
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);
         numbers[i] = NULL;  // paranoid
