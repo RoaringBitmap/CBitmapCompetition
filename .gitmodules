@@ -10,3 +10,6 @@
 [submodule "cbitset"]
 	path = cbitset
 	url = https://github.com/lemire/cbitset.git
+[submodule "Concise"]
+	path = Concise
+	url = https://github.com/lemire/Concise.git
