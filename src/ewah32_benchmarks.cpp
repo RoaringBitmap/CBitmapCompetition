@@ -30,6 +30,7 @@ static std::vector<EWAHBoolArray<uint32_t> > create_all_bitmaps(size_t *howmany,
         for(size_t j = 0; j < howmany[i] ; ++j) {
             bm.set(mynumbers[j]);
         }
+        bm.trim();
     }
     return answer;
 }
@@ -83,6 +84,11 @@ int main(int argc, char **argv) {
     for (size_t i = 0; i < count; i++) {
       totalcard += howmany[i];
     }
+    uint64_t successivecard = 0;
+    for (size_t i = 1; i < count; i++) {
+       successivecard += howmany[i-1] + howmany[i];
+    }
+
 
     uint64_t cycles_start = 0, cycles_final = 0;
 
@@ -126,6 +132,21 @@ int main(int argc, char **argv) {
     data[2] = cycles_final - cycles_start;
     if(verbose) printf("Successive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
                            cycles_final - cycles_start);
+    RDTSC_START(cycles_start);
+    if(count>1) {
+        EWAHBoolArray<uint32_t>  totalorbitmap;
+        bitmaps[0].logicalor(bitmaps[1],totalorbitmap);
+        for(int i = 2 ; i < (int) count; ++i) {
+          EWAHBoolArray<uint32_t>  tmp;
+          totalorbitmap.logicalor(bitmaps[i],tmp);
+          tmp.swap(totalorbitmap);
+        }
+        total_or = totalorbitmap.numberOfOnes();
+    }
+    RDTSC_FINAL(cycles_final);
+    data[3] = cycles_final - cycles_start;
+    if(verbose) printf("Total naive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+                           cycles_final - cycles_start);
 
     RDTSC_START(cycles_start);
     if(count>1) {
@@ -137,12 +158,16 @@ int main(int argc, char **argv) {
         delete[] allofthem;
     }
     RDTSC_FINAL(cycles_final);
-    data[3] = cycles_final - cycles_start;
-    if(verbose) printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+    data[4] = cycles_final - cycles_start;
+    if(verbose) printf("Total heap unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
                            cycles_final - cycles_start);
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
-    printf(" %30.2f %30" PRIu64 " %30" PRIu64 " %30" PRIu64 "\n",data[0]*8.0/totalcard,data[1],data[2],data[3]);
-
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f \n",
+      data[0]*8.0/totalcard,
+      data[1]*1.0/successivecard,
+      data[2]*1.0/successivecard,
+      data[3]*1.0/totalcard,
+      data[4]*1.0/totalcard);
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);
         numbers[i] = NULL;  // paranoid

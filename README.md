@@ -12,11 +12,13 @@ For each of these collections of sets, we do the following :
 -  Union between successive bitmaps, each time generating a new bitmap. We then query and check the cardinality of the result by summing them up.
 -  Finally, we compute the union of the whole set and check the cardinality of the result. This can be done in various ways. A basic way involves doing successive in-place unions which should be the default. In this instance, it is fair to avoid creating temporary bitmaps.
 
-Thus, we output at least 4 numbers: 
+Thus, we output at least 5 numbers: 
 - The memory usage, expressed as a floating-point numbers representing the number of bits used by value. In practice, this is computed by counting the number of bits used in RAM divided by the total cardinality. The total cardinality is given by the sum of the cardinalities of all sets. Thus if you have 200 sets each containing 10 values, your total cardinality is 2000, if you use 2000 bytes of memory, then your number of bits per value will be 8.0.
-- The number of CPU cycles used to compute the successive intersections.
-- The number of CPU cycles used to compute the successive unions.
-- The number of CPU cycles used to compute the total union.
+- The number of CPU cycles used to compute the successive intersections, normalized by the number of input values.
+- The number of CPU cycles used to compute the successive unions, normalized by the number of input values.
+- The number of CPU cycles used to compute the total union using a naive algorithm, normalized by the number of input values.
+- The number of CPU cycles used to compute the total union using a heap-based algorithm, normalized by the number of input values.
+The normalization proceeds as follows. For the total union, we divide by the sum of the cardinality of all sets. For the successive intersections and unions, we divide by the number the sum of the cardinalities of the pairs of sets (so that, effectively, all but the first and last sets count twice).
 
 For each competitive technique, we apply the following recipe:
 
@@ -33,6 +35,8 @@ For a working example, see https://github.com/RoaringBitmap/CBitmapCompetition/b
 
 ## Usage
 
+This project uses submodules as dependencies.
+
 To pull all the submodules:
 ```bash
 git pull && git submodule init && git submodule update && git submodule status
@@ -44,10 +48,11 @@ make
 make test
 ```
 
+Be aware that if you call ``git pull`` while in a submodule, you are *updating* the project for everyone. Try to stick as much as possible with the ``git pull && git submodule init && git submodule update && git submodule status`` as it is safest (it only impacts your local copy).
 
 ## Usage for developers of the project
 
-If one of the submodules changes and you need to update it:
+If one of the submodules changes and you need to update it and update the project (for everyone, not just yourself):
 ```bash
 git submodule foreach git pull origin master
 make clean

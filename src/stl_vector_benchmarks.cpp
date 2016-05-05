@@ -46,7 +46,6 @@ static std::vector<vector > create_all_bitmaps(size_t *howmany,
         uint32_t * mynumbers = numbers[i];
         for(size_t j = 0; j < howmany[i] ; ++j) {
             bm.push_back(mynumbers[j]);
-
         }
         bm.shrink_to_fit();
     }
@@ -104,7 +103,10 @@ int main(int argc, char **argv) {
     for (size_t i = 0; i < count; i++) {
       totalcard += howmany[i];
     }
-
+    uint64_t successivecard = 0;
+    for (size_t i = 1; i < count; i++) {
+       successivecard += howmany[i-1] + howmany[i];
+    }
     uint64_t cycles_start = 0, cycles_final = 0;
 
     RDTSC_START(cycles_start);
@@ -161,8 +163,13 @@ int main(int argc, char **argv) {
     if(verbose) printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
                            cycles_final - cycles_start);
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
-    printf(" %30.2f %30" PRIu64 " %30" PRIu64 " %30" PRIu64 "\n",data[0]*8.0/totalcard,data[1],data[2],data[3]);
-
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f \n",
+      data[0]*8.0/totalcard,
+      data[1]*1.0/successivecard,
+      data[2]*1.0/successivecard,
+      data[3]*1.0/totalcard,
+      data[4]*1.0/totalcard);
+      
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);
         numbers[i] = NULL;  // paranoid
