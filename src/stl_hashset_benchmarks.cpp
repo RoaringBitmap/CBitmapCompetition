@@ -116,38 +116,40 @@ static hashset  fast_logicalor(size_t n, hashset **inputs) {
 	    // could use emplace
 	    pq.push(StdHashSetPtr(inputs[i], false));
 	  }
-	  while (pq.size() > 2) {
+	  while (pq.size() > 1) {
 
 	    StdHashSetPtr x1 = pq.top();
 	    pq.pop();
 
 	    StdHashSetPtr x2 = pq.top();
 	    pq.pop();
-	    hashset * buffer = new hashset();
-      hashunion(*(x1.ptr),*(x2.ptr),*buffer);
-	    if (x1.own) {
-	      delete x1.ptr;
-	    }
-	    if (x2.own) {
-	      delete x2.ptr;
-	    }
-	    pq.push(StdHashSetPtr(buffer, true));
+      if(x1.own) {
+      }
+      if (x1.own && x2.own) {
+        if(x1.ptr->size() > x2.ptr->size()) {
+          inplace_union(*(x1.ptr),*(x2.ptr));
+	        pq.push(x1);
+          delete x2.ptr;
+        } else {
+          inplace_union(*(x2.ptr),*(x1.ptr));
+	        pq.push(x2);
+          delete x1.ptr;
+        }
+      } else  if (x1.own) {
+        inplace_union(*(x1.ptr),*(x2.ptr));
+	      pq.push(x1);
+	    } else if (x2.own) {
+        inplace_union(*(x2.ptr),*(x2.ptr));
+	      pq.push(x2);
+	    } else {
+	      hashset * buffer = new hashset();
+        hashunion(*(x1.ptr),*(x2.ptr),*buffer);
+	      pq.push(StdHashSetPtr(buffer, true));
+      }
 	  }
 	  StdHashSetPtr x1 = pq.top();
 	  pq.pop();
-
-	  StdHashSetPtr x2 = pq.top();
-	  pq.pop();
-
-	  hashset  container;
-    hashunion(*(x1.ptr),*(x2.ptr),container);
-	  if (x1.own) {
-	    delete x1.ptr;
-	  }
-	  if (x2.own) {
-	    delete x2.ptr;
-	  }
-	  return container;
+	  return *x1.ptr;
 	}
 
 
