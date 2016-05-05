@@ -35,6 +35,61 @@ static std::vector<bm::bvector<> > create_all_bitmaps(size_t *howmany,
     return answer;
 }
 
+
+
+
+static bm::bvector<>  fast_logicalor(size_t n, bm::bvector<> **inputs) {
+	  class BMVectorWrapper {
+	  public:
+	    BMVectorWrapper(bm::bvector<> * p, bool o) : ptr(p), own(o) {}
+	    bm::bvector<> * ptr;
+      bool own;
+
+	    bool operator<(const BMVectorWrapper & o) const {
+	      return o.ptr->size() < ptr->size(); // backward on purpose
+	    }
+	  };
+
+	  if (n == 0) {
+		return bm::bvector<>();
+	  }
+	  if (n == 1) {
+	    return bm::bvector<>(*inputs[0]);
+	  }
+	  std::priority_queue<BMVectorWrapper> pq;
+	  for (size_t i = 0; i < n; i++) {
+	    // could use emplace
+	    pq.push(BMVectorWrapper(inputs[i], false));
+	  }
+	  while (pq.size() > 1) {
+
+	    BMVectorWrapper x1 = pq.top();
+	    pq.pop();
+
+	    BMVectorWrapper x2 = pq.top();
+	    pq.pop();
+      if(x1.own) {
+        *x1.ptr |= *x2.ptr;
+        if(x2.own) delete x2.ptr;
+        pq.push(x1);
+      } else if (x2.own) {
+        *x2.ptr |= *x1.ptr;
+        pq.push(x2);
+      } else {
+        bm::bvector<> ans = *x1.ptr | *x2.ptr;
+        bm::bvector<> * buffer = new bm::bvector<>();
+        buffer->swap(ans);
+	      pq.push(BMVectorWrapper(buffer, true));
+      }
+	  }
+	  BMVectorWrapper x1 = pq.top();
+	  pq.pop();
+
+	  return *x1.ptr;
+	}
+
+
+
 static void printusage(char *command) {
     printf(
         " Try %s directory \n where directory could be "
@@ -99,7 +154,7 @@ int main(int argc, char **argv) {
 
     for (int i = 0; i < (int) count; ++i) {
         bm::bvector<> & bv = bitmaps[i];
-        bv.optimize();  // we optimize the bit vectors prior to as recommended
+        bv.optimize();  // we optimize the bit vectors prior to processing them as recommended
         bm::bvector<>::statistics st;
         bv.calc_stat(&st);
         totalsize += st.memory_used;
@@ -142,8 +197,21 @@ int main(int argc, char **argv) {
     }
     RDTSC_FINAL(cycles_final);
     data[3] = cycles_final - cycles_start;
-    if(verbose) printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+    if(verbose) printf("Total naive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
                            cycles_final - cycles_start);
+    RDTSC_START(cycles_start);
+    if(count>1) {
+        bm::bvector<>  ** allofthem = new bm::bvector<>* [count];
+        for(int i = 0 ; i < (int) count; ++i) allofthem[i] = & bitmaps[i];
+        bm::bvector<> totalorbitmap = fast_logicalor(count, allofthem);
+        total_or = totalorbitmap.count();
+        delete[] allofthem;
+    }
+    RDTSC_FINAL(cycles_final);
+    data[4] = cycles_final - cycles_start;
+    if(verbose) printf("Total heap unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+                           cycles_final - cycles_start);
+
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
     printf(" %20.2f %20.2f %20.2f %20.2f %20.2f \n",
       data[0]*8.0/totalcard,
