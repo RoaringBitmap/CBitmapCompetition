@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <vector>
 #include <list>
+#include <cassert>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,7 +31,8 @@ static std::vector<ConciseSet<false> > create_all_bitmaps(size_t *howmany,
         for(size_t j = 0; j < howmany[i] ; ++j) {
             bm.add(mynumbers[j]);
         }
-    }
+        assert(bm.size() == howmany[i]);
+     }
     return answer;
 }
 
