@@ -92,66 +92,10 @@ static void printusage(char *command) {
 
 
 
-static hashset  fast_logicalor(size_t n, hashset **inputs) {
-	  class StdHashSetPtr {
 
-	  public:
-	    StdHashSetPtr(hashset *p, bool o) : ptr(p), own(o) {}
-	    hashset *ptr;
-	    bool own; // whether to clean
-
-	    bool operator<(const StdHashSetPtr &o) const {
-	      return o.ptr->size() < ptr->size(); // backward on purpose
-	    }
-	  };
-
-	  if (n == 0) {
-		return hashset();
-	  }
-	  if (n == 1) {
-	    return hashset(*inputs[0]);
-	  }
-	  std::priority_queue<StdHashSetPtr> pq;
-	  for (size_t i = 0; i < n; i++) {
-	    // could use emplace
-	    pq.push(StdHashSetPtr(inputs[i], false));
-	  }
-	  while (pq.size() > 1) {
-
-	    StdHashSetPtr x1 = pq.top();
-	    pq.pop();
-
-	    StdHashSetPtr x2 = pq.top();
-	    pq.pop();
-      if(x1.own) {
-      }
-      if (x1.own && x2.own) {
-        if(x1.ptr->size() > x2.ptr->size()) {
-          inplace_union(*(x1.ptr),*(x2.ptr));
-	        pq.push(x1);
-          delete x2.ptr;
-        } else {
-          inplace_union(*(x2.ptr),*(x1.ptr));
-	        pq.push(x2);
-          delete x1.ptr;
-        }
-      } else  if (x1.own) {
-        inplace_union(*(x1.ptr),*(x2.ptr));
-	      pq.push(x1);
-	    } else if (x2.own) {
-        inplace_union(*(x2.ptr),*(x2.ptr));
-	      pq.push(x2);
-	    } else {
-	      hashset * buffer = new hashset();
-        hashunion(*(x1.ptr),*(x2.ptr),*buffer);
-	      pq.push(StdHashSetPtr(buffer, true));
-      }
-	  }
-	  StdHashSetPtr x1 = pq.top();
-	  pq.pop();
-	  return *x1.ptr;
-	}
-
+int hashset_size_compare (const void * a, const void * b) {
+  return ( (const hashset*)a)->size() - ((const hashset*)b)->size() ;
+}
 
 int main(int argc, char **argv) {
     int c;
@@ -250,16 +194,20 @@ int main(int argc, char **argv) {
     if(verbose) printf("Total naive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
                            cycles_final - cycles_start);
     RDTSC_START(cycles_start);
-    if(count>1) {
-        hashset  ** allofthem = new  hashset* [count];
-        for(int i = 0 ; i < (int) count; ++i) allofthem[i] = & bitmaps[i];
-        hashset totalorbitmap = fast_logicalor(count, allofthem);
-        total_or = totalorbitmap.size();
-        delete[] allofthem;
+    if(count>1){
+      hashset **sortedbitmaps = (hashset**) malloc(sizeof(hashset*) * count);
+      for (int i = 0; i < (int)count ; ++i) sortedbitmaps[i] = & bitmaps[i];
+      qsort (sortedbitmaps, count, sizeof(hashset *), hashset_size_compare);
+        hashset v (*sortedbitmaps[0]);
+        for (int i = 1; i < (int)count ; ++i) {
+            inplace_union(v, *sortedbitmaps[i]);
+        }
+        total_or = v.size();
+        free(sortedbitmaps);
     }
     RDTSC_FINAL(cycles_final);
     data[4] = cycles_final - cycles_start;
-    if(verbose) printf("Total heap unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
+    if(verbose) printf("Total sorted unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
                            cycles_final - cycles_start);
 
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);

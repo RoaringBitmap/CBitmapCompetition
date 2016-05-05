@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
     RDTSC_START(cycles_start);
     if(count>1){
       bitset_t **sortedbitmaps = (bitset_t**) malloc(sizeof(*sortedbitmaps) * count);
-      memcpy(sortedbitmaps, bitmaps, sizeof(*sortedbitmaps) * count);
+      memcpy(sortedbitmaps, bitmaps, sizeof(bitset_t *) * count);
       qsort (sortedbitmaps, count, sizeof(bitset_t *), bitset_size_compare);
       bitset_t * totalorbitmap = bitset_copy(sortedbitmaps[0]);
       for(size_t i = 1; i < count; ++i) {
