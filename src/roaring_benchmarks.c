@@ -22,6 +22,7 @@ static void printusage(char *command) {
         command);
     ;
     printf("the -r flag turns on run optimization");
+    printf("the -c flag turns on copy-on-write");
     printf("the -v flag turns on verbose mode");
 
 }
@@ -31,9 +32,10 @@ int main(int argc, char **argv) {
     int c;
     bool runoptimize = false;
     bool verbose = false;
+    bool copyonwrite = false;
     char *extension = ".txt";
     uint64_t data[5];
-    while ((c = getopt(argc, argv, "vre:h")) != -1) switch (c) {
+    while ((c = getopt(argc, argv, "cvre:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
             break;
@@ -44,7 +46,11 @@ int main(int argc, char **argv) {
             runoptimize = true;
             if(verbose) printf("enabling run optimization\n");
             break;
-        case 'h':
+        case 'c':
+            copyonwrite = true;
+            if(verbose) printf("enabling copyonwrite\n");
+            break;
+         case 'h':
             printusage(argv[0]);
             return 0;
         default:
@@ -84,6 +90,7 @@ int main(int argc, char **argv) {
     if(verbose) printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
     uint64_t totalsize = 0;
     for (int i = 0; i < (int) count; ++i) {
+        bitmaps[i]->copy_on_write = copyonwrite;
         if(runoptimize) roaring_bitmap_run_optimize(bitmaps[i]);
         totalsize += roaring_bitmap_portable_size_in_bytes(bitmaps[i]);
     }
