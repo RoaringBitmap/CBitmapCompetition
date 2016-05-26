@@ -37,7 +37,7 @@ typedef std::unordered_set<uint32_t,std::hash<uint32_t>,std::equal_to<uint32_t>,
 /**
  * Once you have collected all the integers, build the bitmaps.
  */
-static std::vector<hashset > create_all_bitmaps(size_t *howmany,
+static std::vector<hashset> create_all_bitmaps(size_t *howmany,
         uint32_t **numbers, size_t count) {
     if (numbers == NULL) return std::vector<hashset >();
     std::vector<hashset> answer(count);
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
     int c;
     const char *extension = ".txt";
     bool verbose = false;
-    uint64_t data[5];
+    uint64_t data[6];
     initializeMemUsageCounter();
     while ((c = getopt(argc, argv, "ve:h")) != -1) switch (c) {
         case 'e':
@@ -123,6 +123,14 @@ int main(int argc, char **argv) {
             "directory %s.\n",
             extension, dirname);
         return -1;
+    }
+    uint32_t maxvalue = 0;
+    for (size_t i = 0; i < count; i++) {
+      if( howmany[i] > 0 ) {
+        if(maxvalue < numbers[i][howmany[i]-1]) {
+           maxvalue = numbers[i][howmany[i]-1];
+         }
+      }
     }
     uint64_t totalcard = 0;
     for (size_t i = 0; i < count; i++) {
@@ -200,13 +208,29 @@ int main(int argc, char **argv) {
     if(verbose) printf("Total sorted unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
                            cycles_final - cycles_start);
 
-    if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f \n",
+    RDTSC_START(cycles_start);
+    uint64_t quartcount = 0;
+    for (size_t i = 0; i < count ; ++i) {
+      quartcount += (bitmaps[i].find(maxvalue/4) == bitmaps[i].end());
+      quartcount += (bitmaps[i].find(maxvalue/2) == bitmaps[i].end());
+      quartcount += (bitmaps[i].find(3*maxvalue/4) == bitmaps[i].end());
+    }
+    RDTSC_FINAL(cycles_final);
+    data[5] = cycles_final - cycles_start;
+
+    if(verbose) printf("Quartile queries on %zu bitmaps took %" PRIu64 " cycles\n", count,
+           cycles_final - cycles_start);
+
+    if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
+
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f \n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
       data[2]*1.0/successivecard,
       data[3]*1.0/totalcard,
-      data[4]*1.0/totalcard);
+      data[4]*1.0/totalcard,
+      data[5]*1.0/(3*count)
+    );
 
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);

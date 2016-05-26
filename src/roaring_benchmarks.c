@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     bool verbose = false;
     bool copyonwrite = false;
     char *extension = ".txt";
-    uint64_t data[5];
+    uint64_t data[6];
     while ((c = getopt(argc, argv, "cvre:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
@@ -72,6 +72,14 @@ int main(int argc, char **argv) {
             "directory %s.\n",
             extension, dirname);
         return -1;
+    }
+    uint32_t maxvalue = 0;
+    for (size_t i = 0; i < count; i++) {
+      if( howmany[i] > 0 ) {
+        if(maxvalue < numbers[i][howmany[i]-1]) {
+           maxvalue = numbers[i][howmany[i]-1];
+         }
+      }
     }
     uint64_t totalcard = 0;
     for (size_t i = 0; i < count; i++) {
@@ -142,14 +150,30 @@ int main(int argc, char **argv) {
            cycles_final - cycles_start);
     data[4] = cycles_final - cycles_start;
 
-    if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 "\n",successive_and,successive_or,total_or);
+    RDTSC_START(cycles_start);
+    uint64_t quartcount = 0;
+    for (size_t i = 0; i < count ; ++i) {
+      quartcount += roaring_bitmap_contains(bitmaps[i],maxvalue/4);
+      quartcount += roaring_bitmap_contains(bitmaps[i],maxvalue/2);
+      quartcount += roaring_bitmap_contains(bitmaps[i],3*maxvalue/4);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[5] = cycles_final - cycles_start;
 
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f \n",
+    if(verbose) printf("Quartile queries on %zu bitmaps took %" PRIu64 " cycles\n", count,
+           cycles_final - cycles_start);
+
+    if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
+
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f \n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
       data[2]*1.0/successivecard,
       data[3]*1.0/totalcard,
-      data[4]*1.0/totalcard);
+      data[4]*1.0/totalcard,
+      data[5]*1.0/(3*count)
+    );
+
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);
         numbers[i] = NULL;  // paranoid

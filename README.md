@@ -10,7 +10,8 @@ For each of these collections of sets, we do the following :
 -  We report the memory usage as best we can. Of course, data can always be compressed more or less aggressively to disk, but an important metric is how much RAM the bitmaps are using. It can be difficult to track every byte allocated, but we should do our best to get the memory usage within 1%. In C++, for STL containers, this can be done with a custom memory allocator that tracks memory allocation. 
 -  Intersections between successive bitmaps, each time generating a new bitmap. Thus if there are 200 bitmaps, we generate 199 temporary bitmaps representing the intersection. We then query and check the cardinality of the each intermediate bitmap (by summing them up).
 -  Union between successive bitmaps, each time generating a new bitmap. We then query and check the cardinality of the result by summing them up.
--  Finally, we compute the union of the whole set and check the cardinality of the result. This can be done in various ways. A basic way involves doing successive in-place unions which should be the default. In this instance, it is fair to avoid creating temporary bitmaps.
+-  We compute the union of the whole set and check the cardinality of the result. This can be done in various ways. A basic way involves doing successive in-place unions which should be the default. In this instance, it is fair to avoid creating temporary bitmaps.
+-  Given that the maximal value stored in any bitmap is N, we check whether integers N/4, N/2 and 3*N/4 belong to each bitmap (henceforth a quartile query).
 
 Thus, we output at least 5 numbers: 
 - The memory usage, expressed as a floating-point numbers representing the number of bits used by value. In practice, this is computed by counting the number of bits used in RAM divided by the total cardinality. The total cardinality is given by the sum of the cardinalities of all sets. Thus if you have 200 sets each containing 10 values, your total cardinality is 2000, if you use 2000 bytes of memory, then your number of bits per value will be 8.0.
@@ -18,6 +19,7 @@ Thus, we output at least 5 numbers:
 - The number of CPU cycles used to compute the successive unions, normalized by the number of input values.
 - The number of CPU cycles used to compute the total union using a naive algorithm, normalized by the number of input values.
 - The number of CPU cycles used to compute the total union using a heap-based or sort algorithm, normalized by the number of input values. In some cases, there might not be a reasonable heap-based or sort algorithm, but that is ok.
+- The number of CPU cycles to for each quartile query.
 The normalization proceeds as follows. For the total union, we divide by the sum of the cardinality of all sets. For the successive intersections and unions, we divide by the number the sum of the cardinalities of the pairs of sets (so that, effectively, all but the first and last sets count twice).
 
 For each competitive technique, we apply the following recipe:
