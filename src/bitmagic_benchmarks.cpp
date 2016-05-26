@@ -22,11 +22,12 @@ extern "C" {
  * Once you have collected all the integers, build the bitmaps.
  */
 static std::vector<bm::bvector<> > create_all_bitmaps(size_t *howmany,
-        uint32_t **numbers, size_t count) {
+        uint32_t **numbers, size_t count, bool rlecompression) {
     if (numbers == NULL) return std::vector<bm::bvector<> >();
     std::vector<bm::bvector<> > answer(count);
     for (size_t i = 0; i < count; i++) {
         bm::bvector<> & bm = answer[i];
+        if(rlecompression)  bm.set_new_blocks_strat(bm::BM_GAP);
         uint32_t * mynumbers = numbers[i];
         for(size_t j = 0; j < howmany[i] ; ++j) {
             bm.set(mynumbers[j]);
@@ -95,6 +96,8 @@ static void printusage(char *command) {
         command);
     ;
     printf("the -v flag turns on verbose mode");
+    printf("the -r flag turns on RLE compression");
+
 
 }
 
@@ -102,13 +105,17 @@ int main(int argc, char **argv) {
     int c;
     const char *extension = ".txt";
     bool verbose = false;
+    bool rlecompression = false;
     uint64_t data[6];
-    while ((c = getopt(argc, argv, "ve:h")) != -1) switch (c) {
+    while ((c = getopt(argc, argv, "rve:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
             break;
         case 'v':
             verbose = true;
+            break;
+        case 'r': 
+            rlecompression = true;
             break;
         case 'h':
             printusage(argv[0]);
@@ -120,6 +127,7 @@ int main(int argc, char **argv) {
         printusage(argv[0]);
         return -1;
     }
+    if(verbose) printf("rlecompression=%d\n",rlecompression);
     char *dirname = argv[optind];
     size_t count;
 
@@ -152,7 +160,7 @@ int main(int argc, char **argv) {
     uint64_t cycles_start = 0, cycles_final = 0;
 
     RDTSC_START(cycles_start);
-    std::vector<bm::bvector<> > bitmaps = create_all_bitmaps(howmany, numbers, count);
+    std::vector<bm::bvector<> > bitmaps = create_all_bitmaps(howmany, numbers, count, rlecompression);
     RDTSC_FINAL(cycles_final);
     if (bitmaps.empty()) return -1;
     if(verbose) printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
@@ -160,7 +168,7 @@ int main(int argc, char **argv) {
 
     for (int i = 0; i < (int) count; ++i) {
         bm::bvector<> & bv = bitmaps[i];
-        bv.optimize();  // we optimize the bit vectors prior to processing them as recommended
+        // bv.optimize();  // doing so turns on RLE compression when needed, use -r flag instead
         bm::bvector<>::statistics st;
         bv.calc_stat(&st);
         totalsize += st.memory_used;
