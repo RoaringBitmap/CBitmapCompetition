@@ -37,29 +37,29 @@ roaring_benchmarks : libroaring src/roaring_benchmarks.c
 	@$(CC) $(CFLAGS) -o roaring_benchmarks src/roaring_benchmarks.c -ICRoaring/include -ICRoaring/benchmarks -Lroaringlib -lroaring
 
 bitmagic_benchmarks: src/bitmagic_benchmarks.cpp
-	$(CXX) $(CXXFLAGS) -o bitmagic_benchmarks src/bitmagic_benchmarks.cpp -IBitMagic/src -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS) -o bitmagic_benchmarks src/bitmagic_benchmarks.cpp -IBitMagic/src  -ICRoaring/include -ICRoaring/benchmarks
 
 ewah32_benchmarks: src/ewah32_benchmarks.cpp
-	$(CXX) $(CXXFLAGS)  -o ewah32_benchmarks ./src/ewah32_benchmarks.cpp -IEWAHBoolArray/headers -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS)  -o ewah32_benchmarks ./src/ewah32_benchmarks.cpp -IEWAHBoolArray/headers  -ICRoaring/include -ICRoaring/benchmarks
 
 wah32_benchmarks: src/wah32_benchmarks.cpp
-	$(CXX) $(CXXFLAGS)  -o wah32_benchmarks ./src/wah32_benchmarks.cpp -IConcise/include -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS)  -o wah32_benchmarks ./src/wah32_benchmarks.cpp -IConcise/include  -ICRoaring/include -ICRoaring/benchmarks
 
 concise_benchmarks: src/concise_benchmarks.cpp
-	$(CXX) $(CXXFLAGS)  -o concise_benchmarks ./src/concise_benchmarks.cpp -IConcise/include -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS)  -o concise_benchmarks ./src/concise_benchmarks.cpp -IConcise/include  -ICRoaring/include -ICRoaring/benchmarks
 
 
 ewah64_benchmarks: src/ewah64_benchmarks.cpp
-	$(CXX) $(CXXFLAGS)  -o ewah64_benchmarks ./src/ewah64_benchmarks.cpp -IEWAHBoolArray/headers -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS)  -o ewah64_benchmarks ./src/ewah64_benchmarks.cpp -IEWAHBoolArray/headers  -ICRoaring/include -ICRoaring/benchmarks
 
 stl_vector_benchmarks: src/stl_vector_benchmarks.cpp src/allocator.h
-	$(CXX) $(CXXFLAGS)  -o stl_vector_benchmarks ./src/stl_vector_benchmarks.cpp  -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS)  -o stl_vector_benchmarks ./src/stl_vector_benchmarks.cpp   -ICRoaring/include -ICRoaring/benchmarks
 
 stl_hashset_benchmarks: src/stl_hashset_benchmarks.cpp src/allocator.h
-	$(CXX) $(CXXFLAGS)  -o stl_hashset_benchmarks ./src/stl_hashset_benchmarks.cpp  -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS)  -o stl_hashset_benchmarks ./src/stl_hashset_benchmarks.cpp   -ICRoaring/include -ICRoaring/benchmarks
 
 bitset_benchmarks: src/bitset_benchmarks.c cbitset/include/bitset.h cbitset/src/bitset.c
-	$(CXX) $(CXXFLAGS)  -o bitset_benchmarks ./src/bitset_benchmarks.c cbitset/src/bitset.c  -ICRoaring/benchmarks -Icbitset/include
+	$(CXX) $(CXXFLAGS)  -o bitset_benchmarks ./src/bitset_benchmarks.c cbitset/src/bitset.c   -ICRoaring/include -ICRoaring/benchmarks -Icbitset/include
 
 libroaring:
 	@(mkdir -p roaringlib && cd roaringlib && cmake ../CRoaring >/dev/null && make >/dev/null)
