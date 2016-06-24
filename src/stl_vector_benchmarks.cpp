@@ -30,8 +30,8 @@ uint64_t getMemUsageInBytes()  {
 
 
 
-typedef std::vector<uint32_t,MemoryCountingAllocator<uint32_t> >  vector;
-
+//typedef std::vector<uint32_t,MemoryCountingAllocator<uint32_t> >  vector;
+typedef std::vector<uint32_t> vector;
 
 static vector  fast_logicalor(size_t n, const vector **inputs) {
 	  class StdVectorPtr {
@@ -245,9 +245,15 @@ int main(int argc, char **argv) {
     RDTSC_START(cycles_start);
     uint64_t quartcount = 0;
     for (size_t i = 0; i < count ; ++i) {
-      quartcount += (*std::lower_bound(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/4)  == maxvalue/4);
-      quartcount += (*std::lower_bound(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/2)  == maxvalue/2);
-      quartcount += (*std::lower_bound(bitmaps[i].begin(),bitmaps[i].end(),3*maxvalue/4)  == 3*maxvalue/4);
+      auto X1 = std::find(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/4 ); 
+      if(X1 != bitmaps[i].end())
+      	quartcount ++;
+      auto X2 = std::find(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/2 ); 
+      if(X2 != bitmaps[i].end())
+      	quartcount ++;
+      auto X3 = std::find(bitmaps[i].begin(),bitmaps[i].end(),3*maxvalue/4 ); 
+      if(X3 != bitmaps[i].end())
+      	quartcount ++;
     }
     RDTSC_FINAL(cycles_final);
     data[5] = cycles_final - cycles_start;

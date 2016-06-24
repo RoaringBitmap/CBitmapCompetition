@@ -84,7 +84,7 @@ static void printusage(char *command) {
 
 
 int hashset_size_compare (const void * a, const void * b) {
-  return ( (const hashset*)a)->size() - ((const hashset*)b)->size() ;
+  return ( *(const hashset**)a)->size() - (*(const hashset**)b)->size() ;
 }
 
 int main(int argc, char **argv) {
