@@ -31,7 +31,7 @@ static void printusage(char *command) {
 }
 
 int bitset_size_compare (const void * a, const void * b) {
-  return ( bitset_size_in_bytes((const bitset_t*)a) - bitset_size_in_bytes((const bitset_t*)b) );
+   return ( bitset_size_in_bytes(*(const bitset_t**)a) - bitset_size_in_bytes(*(const bitset_t**)b) );
 }
 
 
@@ -144,9 +144,9 @@ int main(int argc, char **argv) {
 
     RDTSC_START(cycles_start);
     if(count>1){
-      bitset_t **sortedbitmaps = (bitset_t**) malloc(sizeof(*sortedbitmaps) * count);
+      bitset_t **sortedbitmaps = (bitset_t**) malloc(sizeof(bitset_t *) * count);
       memcpy(sortedbitmaps, bitmaps, sizeof(bitset_t *) * count);
-      qsort (sortedbitmaps, count, sizeof(bitset_t *), bitset_size_compare);
+      qsort (sortedbitmaps, count, sizeof(bitset_t **), bitset_size_compare);
       bitset_t * totalorbitmap = bitset_copy(sortedbitmaps[0]);
       for(size_t i = 1; i < count; ++i) {
         if(!bitset_inplace_union(totalorbitmap,sortedbitmaps[i])) printf("failed to compute union");
