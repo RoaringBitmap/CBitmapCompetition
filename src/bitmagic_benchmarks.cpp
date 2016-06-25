@@ -36,13 +36,13 @@ static std::vector<bm::bvector<> > create_all_bitmaps(size_t *howmany,
     return answer;
 }
 
-
+// This function has unresolved memory leaks. We don't care since we focus on performance.
 static bm::bvector<>  fast_logicalor(size_t n, bm::bvector<> **inputs) {
 	  class BMVectorWrapper {
 	  public:
 	    BMVectorWrapper(bm::bvector<> * p, bool o) : ptr(p), own(o) {}
 	    bm::bvector<> * ptr;
-      bool own;
+            bool own;
 
 	    bool operator<(const BMVectorWrapper & o) const {
 	      return o.ptr->size() < ptr->size(); // backward on purpose
@@ -68,11 +68,11 @@ static bm::bvector<>  fast_logicalor(size_t n, bm::bvector<> **inputs) {
 	    BMVectorWrapper x2 = pq.top();
 	    pq.pop();
       if(x1.own) {
-        *x1.ptr |= *x2.ptr;
-        if(x2.own) delete x2.ptr;
+        x1.ptr->bit_or(*x2.ptr);
+       if(x2.own) delete x2.ptr;
         pq.push(x1);
       } else if (x2.own) {
-        *x2.ptr |= *x1.ptr;
+        x2.ptr->bit_or(*x1.ptr);
         pq.push(x2);
       } else {
         bm::bvector<> ans = *x1.ptr | *x2.ptr;

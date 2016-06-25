@@ -37,39 +37,37 @@ public:
         return &value;
     }
 
-    MemoryCountingAllocator() {}
-    MemoryCountingAllocator(const MemoryCountingAllocator &)  {}
+    MemoryCountingAllocator() : base() {}
+    MemoryCountingAllocator(const MemoryCountingAllocator &) : base() {}
     template <typename U>
-    MemoryCountingAllocator(const MemoryCountingAllocator<U> &) {}
+    MemoryCountingAllocator(const MemoryCountingAllocator<U> &) : base() {}
     ~MemoryCountingAllocator() {}
 
     // return maximum number of elements that can be allocated
     size_type max_size() const throw() {
-        return std::numeric_limits<std::size_t>::max() / sizeof(T);
+        return base.max_size();
     }
 
-    pointer allocate(size_type num, const void * = 0) {
+    pointer allocate(size_type num, const void * p = 0) {
         memory_usage += num * sizeof(T);
-        return reinterpret_cast<pointer>( ::operator new(num * sizeof(T) ) );
+        return base.allocate(num,p);
     }
 
     void construct(pointer p, const T &value) {
-        // initialize memory with placement new
-        new (p) T(value);
+        return base.construct(p,value);
     }
 
     // destroy elements of initialized storage p
     void destroy(pointer p) {
-        p->~T();
+        base.destroy(p);
     }
 
     // deallocate storage p of deleted elements
     void deallocate(pointer p, size_type num ) {
         memory_usage -= num * sizeof(T);
-        ::operator delete(
-            reinterpret_cast<pointer>(reinterpret_cast<uintptr_t>(p)));
+        base.deallocate(p,num);
     }
-
+    std::allocator<T> base;
 };
 
 // for our purposes, we don't want to distinguish between allocators.

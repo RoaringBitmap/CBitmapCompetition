@@ -13,3 +13,6 @@
 [submodule "Concise"]
 	path = Concise
 	url = https://github.com/lemire/Concise.git
+[submodule "CSimpleRoaring"]
+	path = CSimpleRoaring
+	url = https://github.com/lemire/CSimpleRoaring.git
