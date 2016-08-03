@@ -8,72 +8,60 @@
 #
 .SUFFIXES: .cpp .o .c .h
 
-.PHONY: clean libroaring simplelibroaring
+.PHONY: clean
 ifeq ($(DEBUG),1)
 CFLAGS = -fPIC  -std=c99 -ggdb -mavx2 -march=native -Wall -Wextra -Wshadow -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address
 CXXFLAGS = -fPIC  -std=c++11 -ggdb -mavx2 -march=native -Wall -Wextra -Wshadow -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address -Wno-deprecated-register
 ROARFLAGS = -DCMAKE_BUILD_TYPE=Debug -DSANITIZE=ON
 else
-CFLAGS = -fPIC -std=c99 -O3 -mavx2  -march=native -Wall -Wextra -Wshadow 
-CXXFLAGS = -fPIC -std=c++11 -O3 -mavx2  -march=native -Wall -Wextra -Wshadow -Wno-deprecated-register 
+CFLAGS = -fPIC -std=c99 -O3 -mavx2  -march=native -Wall -Wextra -Wshadow
+CXXFLAGS = -fPIC -std=c++11 -O3 -mavx2  -march=native -Wall -Wextra -Wshadow -Wno-deprecated-register
 ROARFLAGS = -DCMAKE_BUILD_TYPE=Release
 endif # debug
 
 UNAME := $(shell uname)
 
 
-ifeq ($(UNAME), Darwin)
-  CROARINGLIBNAME=roaringlib/libroaring.dylib
-  CSIMPLEROARINGLIBNAME=simpleroaringlib/libroaring.dylib
-else
-  CROARINGLIBNAME=roaringlib/libroaring.so
-  CSIMPLEROARINGLIBNAME=simpleroaringlib/libroaring.so
-endif
-
-EXECUTABLES=wah32_benchmarks concise_benchmarks roaring_benchmarks simpleroaring_benchmarks bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks bitset_benchmarks
+EXECUTABLES=wah32_benchmarks concise_benchmarks roaring_benchmarks  bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks bitset_benchmarks roaring_benchmarks_nobitsetconv
 
 all: $(EXECUTABLES)
 
 test:
 	./scripts/all.sh
 
-roaring_benchmarks : libroaring src/roaring_benchmarks.c
-	@$(CC) $(CFLAGS) -o roaring_benchmarks src/roaring_benchmarks.c -ICRoaring/include -ICRoaring/benchmarks -Lroaringlib -lroaring
 
-simpleroaring_benchmarks : simplelibroaring src/roaring_benchmarks.c
-	@$(CC) $(CFLAGS) -o simpleroaring_benchmarks src/roaring_benchmarks.c -ICSimpleRoaring/include -ICSimpleRoaring/benchmarks -Lsimpleroaringlib -lroaring
+src/roaring.c :
+	(cd src && exec ../CRoaring/amalgamation.sh && rm almagamation_demo.c && rm almagamation_demo.cpp)
 
+roaring_benchmarks : src/roaring.c src/roaring_benchmarks.c
+	$(CC) $(CFLAGS) -o roaring_benchmarks src/roaring_benchmarks.c
+
+roaring_benchmarks_nobitsetconv : src/roaring.c src/roaring_benchmarks.c
+	$(CC) $(CFLAGS) -DLAZY_OR_BITSET_CONVERSION=false -o roaring_benchmarks_nobitsetconv src/roaring_benchmarks.c
 
 bitmagic_benchmarks: src/bitmagic_benchmarks.cpp
-	$(CXX) $(CXXFLAGS) -o bitmagic_benchmarks src/bitmagic_benchmarks.cpp -IBitMagic/src  -ICRoaring/include -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS) -o bitmagic_benchmarks src/bitmagic_benchmarks.cpp -IBitMagic/src
 
 ewah32_benchmarks: src/ewah32_benchmarks.cpp
-	$(CXX) $(CXXFLAGS)  -o ewah32_benchmarks ./src/ewah32_benchmarks.cpp -IEWAHBoolArray/headers  -ICRoaring/include -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS)  -o ewah32_benchmarks ./src/ewah32_benchmarks.cpp -IEWAHBoolArray/headers
 
 wah32_benchmarks: src/wah32_benchmarks.cpp
-	$(CXX) $(CXXFLAGS)  -o wah32_benchmarks ./src/wah32_benchmarks.cpp -IConcise/include  -ICRoaring/include -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS)  -o wah32_benchmarks ./src/wah32_benchmarks.cpp -IConcise/include
 
 concise_benchmarks: src/concise_benchmarks.cpp
-	$(CXX) $(CXXFLAGS)  -o concise_benchmarks ./src/concise_benchmarks.cpp -IConcise/include  -ICRoaring/include -ICRoaring/benchmarks
-
+	$(CXX) $(CXXFLAGS)  -o concise_benchmarks ./src/concise_benchmarks.cpp -IConcise/include
 
 ewah64_benchmarks: src/ewah64_benchmarks.cpp
-	$(CXX) $(CXXFLAGS)  -o ewah64_benchmarks ./src/ewah64_benchmarks.cpp -IEWAHBoolArray/headers  -ICRoaring/include -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS)  -o ewah64_benchmarks ./src/ewah64_benchmarks.cpp -IEWAHBoolArray/headers
 
 stl_vector_benchmarks: src/stl_vector_benchmarks.cpp src/allocator.h
-	$(CXX) $(CXXFLAGS)  -o stl_vector_benchmarks ./src/stl_vector_benchmarks.cpp   -ICRoaring/include -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS)  -o stl_vector_benchmarks ./src/stl_vector_benchmarks.cpp
 
 stl_hashset_benchmarks: src/stl_hashset_benchmarks.cpp src/allocator.h
-	$(CXX) $(CXXFLAGS)  -o stl_hashset_benchmarks ./src/stl_hashset_benchmarks.cpp   -ICRoaring/include -ICRoaring/benchmarks
+	$(CXX) $(CXXFLAGS)  -o stl_hashset_benchmarks ./src/stl_hashset_benchmarks.cpp
 
 bitset_benchmarks: src/bitset_benchmarks.c cbitset/include/bitset.h cbitset/src/bitset.c
-	$(CXX) $(CXXFLAGS)  -o bitset_benchmarks ./src/bitset_benchmarks.c cbitset/src/bitset.c   -ICRoaring/include -ICRoaring/benchmarks -Icbitset/include
-
-libroaring:
-	@(mkdir -p roaringlib && cd roaringlib && cmake $(ROARFLAGS) ../CRoaring >/dev/null && make >/dev/null)
-
-simplelibroaring:
-	@(mkdir -p simpleroaringlib && cd simpleroaringlib && cmake $(ROARFLAGS) ../CSimpleRoaring >/dev/null && make >/dev/null)
+	$(CXX) $(CXXFLAGS)  -o bitset_benchmarks ./src/bitset_benchmarks.c cbitset/src/bitset.c   -Icbitset/include
 
 clean:
-	rm -r -f simpleroaringlib roaringlib  $(EXECUTABLES) CRoaring/CMakeCache.txt CRoaring/CMakeFiles  CSimpleRoaring/CMakeCache.txt CSimpleRoaring/CMakeFiles
+	rm -r -f   $(EXECUTABLES) src/roaring.c src/roaring.h src/roaring.hh

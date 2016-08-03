@@ -1,7 +1,7 @@
 #define _GNU_SOURCE
 #include "benchmark.h"
 #include "numbersfromtextfiles.h"
-#include "roaring.h"
+#include "roaring.c"
 /**
  * Once you have collected all the integers, build the bitmaps.
  */
