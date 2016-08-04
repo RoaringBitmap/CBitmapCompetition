@@ -2,6 +2,9 @@
 #ifndef BENCHMARKS_INCLUDE_BENCHMARK_H_
 #define BENCHMARKS_INCLUDE_BENCHMARK_H_
 
+const int quartile_test_repetitions = 10;
+
+
 #define RDTSC_START(cycles)                                                   \
     do {                                                                      \
         register unsigned cyc_high, cyc_low;                                  \
@@ -26,6 +29,22 @@
         (cycles) = ((uint64_t)cyc_high << 32) | cyc_low;                      \
     } while (0)
 
+#define STARTBEST(numberoftests) \
+   { \
+   uint64_t min_diff = -1 ; \
+   uint64_t boguscyclesstart = 0; \
+   uint64_t boguscyclesend = 0; \
+   for(int bogustest = 0; bogustest < numberoftests; bogustest++ ) { \
+     uint64_t cycles_diff = 0;\
+     RDTSC_START(boguscyclesstart);
+
+#define ENDBEST(outputvar) \
+     RDTSC_FINAL(boguscyclesend); \
+     cycles_diff = (boguscyclesend - boguscyclesstart);              \
+     if (cycles_diff < min_diff) min_diff = cycles_diff;       \
+   } \
+   outputvar = min_diff;\
+   }
 
 /*
  * Prints the best number of operations per cycle where

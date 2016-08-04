@@ -208,18 +208,18 @@ int main(int argc, char **argv) {
     if(verbose) printf("Total sorted unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
                            cycles_final - cycles_start);
 
-    RDTSC_START(cycles_start);
-    uint64_t quartcount = 0;
+    uint64_t quartcount;
+    STARTBEST(quartile_test_repetitions)
+    quartcount = 0;
     for (size_t i = 0; i < count ; ++i) {
       quartcount += (bitmaps[i].find(maxvalue/4) == bitmaps[i].end());
       quartcount += (bitmaps[i].find(maxvalue/2) == bitmaps[i].end());
       quartcount += (bitmaps[i].find(3*maxvalue/4) == bitmaps[i].end());
     }
-    RDTSC_FINAL(cycles_final);
-    data[5] = cycles_final - cycles_start;
+    ENDBEST(data[5])
 
     if(verbose) printf("Quartile queries on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
+           data[5]);
 
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
 

@@ -165,18 +165,18 @@ int main(int argc, char **argv) {
     if(verbose) printf("Total heap unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
                            cycles_final - cycles_start);
 
-    RDTSC_START(cycles_start);
-    uint64_t quartcount = 0;
+    uint64_t quartcount;
+    STARTBEST(quartile_test_repetitions)
+    quartcount = 0;
     for (size_t i = 0; i < count ; ++i) {
       quartcount += bitmaps[i].contains(maxvalue/4);
       quartcount += bitmaps[i].contains(maxvalue/2);
       quartcount += bitmaps[i].contains(3*maxvalue/4);
     }
-    RDTSC_FINAL(cycles_final);
-    data[5] = cycles_final - cycles_start;
+    ENDBEST(data[5])
 
     if(verbose) printf("Quartile queries on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
+           data[5]);
 
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
 

@@ -160,18 +160,18 @@ int main(int argc, char **argv) {
            cycles_final - cycles_start);
     data[4] = cycles_final - cycles_start;
 
-    RDTSC_START(cycles_start);
-    uint64_t quartcount = 0;
+    uint64_t quartcount;
+    STARTBEST(quartile_test_repetitions)
+    quartcount = 0;
     for (size_t i = 0; i < count ; ++i) {
       quartcount += bitset_get(bitmaps[i],maxvalue/4);
       quartcount += bitset_get(bitmaps[i],maxvalue/2);
       quartcount += bitset_get(bitmaps[i],3*maxvalue/4);
     }
-    RDTSC_FINAL(cycles_final);
-    data[5] = cycles_final - cycles_start;
+    ENDBEST(data[5])
 
     if(verbose) printf("Quartile queries on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
+           data[5]);
 
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
 
