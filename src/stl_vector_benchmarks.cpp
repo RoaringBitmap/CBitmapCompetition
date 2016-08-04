@@ -30,8 +30,7 @@ uint64_t getMemUsageInBytes()  {
 
 
 
-//typedef std::vector<uint32_t,MemoryCountingAllocator<uint32_t> >  vector;
-typedef std::vector<uint32_t> vector;
+typedef std::vector<uint32_t,MemoryCountingAllocator<uint32_t> >  vector;
 
 static vector  fast_logicalor(size_t n, const vector **inputs) {
 	  class StdVectorPtr {
