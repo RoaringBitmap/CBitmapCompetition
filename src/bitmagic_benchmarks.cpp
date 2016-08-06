@@ -16,32 +16,44 @@ extern "C" {
 }
 #endif
 
+#define BMSSE2OPT // for good measure we enable SSE2
+#define BMSSE42OPT // to enable SSE4 optimizations
+
 #include "bm.h" /* bit magic */
 #include "bmserial.h" /* bit magic, serialization routines */
+
+typedef bm::bvector<> bvect;
+
 /**
  * Once you have collected all the integers, build the bitmaps.
  */
-static std::vector<bm::bvector<> > create_all_bitmaps(size_t *howmany,
-        uint32_t **numbers, size_t count, bool rlecompression) {
-    if (numbers == NULL) return std::vector<bm::bvector<> >();
-    std::vector<bm::bvector<> > answer(count);
+static std::vector<bvect > create_all_bitmaps(size_t *howmany,
+        uint32_t **numbers, size_t count, bool memorysavingmode) {
+    if (numbers == NULL) return std::vector<bvect >();
+    // we work hard to create the bitsets in memory-saving mode
+    std::vector<bvect > answer(count);
     for (size_t i = 0; i < count; i++) {
-        bm::bvector<> & bm = answer[i];
-        if(rlecompression)  bm.set_new_blocks_strat(bm::BM_GAP);
+        bvect & bm = answer[i];
+        if(memorysavingmode) {
+          bm.set_new_blocks_strat(bm::BM_GAP);
+        }
         uint32_t * mynumbers = numbers[i];
         for(size_t j = 0; j < howmany[i] ; ++j) {
-            bm.set(mynumbers[j]);
+          bm.set(mynumbers[j]);
+        }
+        if(memorysavingmode) {
+          bm.optimize();// this might be useless, redundant...
         }
     }
     return answer;
 }
 
 // This function has unresolved memory leaks. We don't care since we focus on performance.
-static bm::bvector<>  fast_logicalor(size_t n, bm::bvector<> **inputs) {
+static bvect  fast_logicalor(size_t n, bvect **inputs) {
 	  class BMVectorWrapper {
 	  public:
-	    BMVectorWrapper(bm::bvector<> * p, bool o) : ptr(p), own(o) {}
-	    bm::bvector<> * ptr;
+	    BMVectorWrapper(bvect * p, bool o) : ptr(p), own(o) {}
+	    bvect * ptr;
             bool own;
 
 	    bool operator<(const BMVectorWrapper & o) const {
@@ -50,10 +62,10 @@ static bm::bvector<>  fast_logicalor(size_t n, bm::bvector<> **inputs) {
 	  };
 
 	  if (n == 0) {
-		return bm::bvector<>();
+		return bvect();
 	  }
 	  if (n == 1) {
-	    return bm::bvector<>(*inputs[0]);
+	    return bvect(*inputs[0]);
 	  }
 	  std::priority_queue<BMVectorWrapper> pq;
 	  for (size_t i = 0; i < n; i++) {
@@ -75,8 +87,8 @@ static bm::bvector<>  fast_logicalor(size_t n, bm::bvector<> **inputs) {
         x2.ptr->bit_or(*x1.ptr);
         pq.push(x2);
       } else {
-        bm::bvector<> ans = *x1.ptr | *x2.ptr;
-        bm::bvector<> * buffer = new bm::bvector<>();
+        bvect ans = *x1.ptr | *x2.ptr;
+        bvect * buffer = new bvect();
         buffer->swap(ans);
 	      pq.push(BMVectorWrapper(buffer, true));
       }
@@ -96,7 +108,7 @@ static void printusage(char *command) {
         command);
     ;
     printf("the -v flag turns on verbose mode");
-    printf("the -r flag turns on RLE compression");
+    printf("the -r flag turns on memory-saving mode");
 
 
 }
@@ -105,7 +117,7 @@ int main(int argc, char **argv) {
     int c;
     const char *extension = ".txt";
     bool verbose = false;
-    bool rlecompression = false;
+    bool memorysavingmode = false;
     uint64_t data[6];
     while ((c = getopt(argc, argv, "rve:h")) != -1) switch (c) {
         case 'e':
@@ -115,7 +127,7 @@ int main(int argc, char **argv) {
             verbose = true;
             break;
         case 'r':
-            rlecompression = true;
+            memorysavingmode = true;
             break;
         case 'h':
             printusage(argv[0]);
@@ -127,7 +139,7 @@ int main(int argc, char **argv) {
         printusage(argv[0]);
         return -1;
     }
-    if(verbose) printf("rlecompression=%d\n",rlecompression);
+    if(verbose) printf("memorysavingmode=%d\n",memorysavingmode);
     char *dirname = argv[optind];
     size_t count;
 
@@ -160,16 +172,15 @@ int main(int argc, char **argv) {
     uint64_t cycles_start = 0, cycles_final = 0;
 
     RDTSC_START(cycles_start);
-    std::vector<bm::bvector<> > bitmaps = create_all_bitmaps(howmany, numbers, count, rlecompression);
+    std::vector<bvect > bitmaps = create_all_bitmaps(howmany, numbers, count, memorysavingmode);
     RDTSC_FINAL(cycles_final);
     if (bitmaps.empty()) return -1;
     if(verbose) printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
     uint64_t totalsize = 0;
 
     for (int i = 0; i < (int) count; ++i) {
-        bm::bvector<> & bv = bitmaps[i];
-        // bv.optimize();  // doing so turns on RLE compression when needed, use -r flag instead
-        bm::bvector<>::statistics st;
+        bvect & bv = bitmaps[i];
+        bvect::statistics st;
         bv.calc_stat(&st);
         totalsize += st.memory_used;
     }
@@ -183,7 +194,7 @@ int main(int argc, char **argv) {
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
-        bm::bvector<> tempand = bitmaps[i] & bitmaps[i + 1];
+        bvect tempand = bitmaps[i] & bitmaps[i + 1];
         successive_and += tempand.count();
     }
     RDTSC_FINAL(cycles_final);
@@ -193,7 +204,7 @@ int main(int argc, char **argv) {
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
-        bm::bvector<> tempor = bitmaps[i] | bitmaps[i + 1];
+        bvect tempor = bitmaps[i] | bitmaps[i + 1];
         successive_or += tempor.count();
     }
     RDTSC_FINAL(cycles_final);
@@ -203,7 +214,7 @@ int main(int argc, char **argv) {
 
     RDTSC_START(cycles_start);
     if(count>1) {
-        bm::bvector<> totalorbitmap = bitmaps[0] | bitmaps[1];
+        bvect totalorbitmap = bitmaps[0] | bitmaps[1];
         for (int i = 2; i < (int)count ; ++i) {
             totalorbitmap |= bitmaps[i];
         }
@@ -215,9 +226,9 @@ int main(int argc, char **argv) {
                            cycles_final - cycles_start);
     RDTSC_START(cycles_start);
     if(count>1) {
-        bm::bvector<>  ** allofthem = new bm::bvector<>* [count];
+        bvect  ** allofthem = new bvect* [count];
         for(int i = 0 ; i < (int) count; ++i) allofthem[i] = & bitmaps[i];
-        bm::bvector<> totalorbitmap = fast_logicalor(count, allofthem);
+        bvect totalorbitmap = fast_logicalor(count, allofthem);
         total_or = totalorbitmap.count();
         delete[] allofthem;
     }
