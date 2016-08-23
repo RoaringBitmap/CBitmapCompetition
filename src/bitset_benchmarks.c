@@ -1,6 +1,8 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+#define __STDC_FORMAT_MACROS 1
+#include <inttypes.h>
 #include "benchmark.h"
 #include "numbersfromtextfiles.h"
 #include "bitset.h"

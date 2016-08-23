@@ -1,4 +1,6 @@
 #define _GNU_SOURCE
+#define __STDC_FORMAT_MACROS 1
+#include <inttypes.h>
 #include "benchmark.h"
 #include "numbersfromtextfiles.h"
 #include "roaring.c"
