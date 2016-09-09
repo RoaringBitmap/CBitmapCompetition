@@ -22,7 +22,7 @@ endif # debug
 UNAME := $(shell uname)
 
 
-EXECUTABLES=wah32_benchmarks concise_benchmarks roaring_benchmarks  bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks bitset_benchmarks roaring_benchmarks_nobitsetconv
+EXECUTABLES=wah32_benchmarks concise_benchmarks roaring_benchmarks  bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks bitset_benchmarks 
 
 all: $(EXECUTABLES)
 
@@ -35,9 +35,6 @@ src/roaring.c :
 
 roaring_benchmarks : src/roaring.c src/roaring_benchmarks.c
 	$(CC) $(CFLAGS) -o roaring_benchmarks src/roaring_benchmarks.c
-
-roaring_benchmarks_nobitsetconv : src/roaring.c src/roaring_benchmarks.c
-	$(CC) $(CFLAGS) -DLAZY_OR_BITSET_CONVERSION=false -o roaring_benchmarks_nobitsetconv src/roaring_benchmarks.c
 
 bitmagic_benchmarks: src/bitmagic_benchmarks.cpp
 	$(CXX) $(CXXFLAGS) -o bitmagic_benchmarks src/bitmagic_benchmarks.cpp -IBitMagic/src
