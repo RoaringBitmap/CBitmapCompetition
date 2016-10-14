@@ -143,13 +143,11 @@ int main(int argc, char **argv) {
     if(verbose) printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
            cycles_final - cycles_start);
     data[3] = cycles_final - cycles_start;
-for(int k = 0; k < 1000; ++k) {
     RDTSC_START(cycles_start);
     roaring_bitmap_t * totalorbitmapheap = roaring_bitmap_or_many_heap(count,(const roaring_bitmap_t **)bitmaps);
     total_or = roaring_bitmap_get_cardinality(totalorbitmapheap);
     roaring_bitmap_free(totalorbitmapheap);
     RDTSC_FINAL(cycles_final);
-}
     if(verbose) printf("Total unions with heap on %zu bitmaps took %" PRIu64 " cycles\n", count,
            cycles_final - cycles_start);
     data[4] = cycles_final - cycles_start;
