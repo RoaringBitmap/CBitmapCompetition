@@ -22,7 +22,7 @@ endif # debug
 UNAME := $(shell uname)
 
 
-EXECUTABLES=wah32_benchmarks concise_benchmarks roaring_benchmarks slow_roaring_benchmarks  bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks bitset_benchmarks 
+EXECUTABLES=wah32_benchmarks concise_benchmarks roaring_benchmarks slow_roaring_benchmarks  bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks stl_vector_benchmarks_memtracked stl_hashset_benchmarks_memtracked bitset_benchmarks malloced_roaring_benchmarks
 
 all: $(EXECUTABLES)
 
@@ -35,6 +35,11 @@ src/roaring.c :
 
 roaring_benchmarks : src/roaring.c src/roaring_benchmarks.c
 	$(CC) $(CFLAGS) -o roaring_benchmarks src/roaring_benchmarks.c
+
+
+malloced_roaring_benchmarks : src/roaring.c src/roaring_benchmarks.c
+	$(CC) $(CFLAGS) -o malloced_roaring_benchmarks src/roaring_benchmarks.c -DRECORD_MALLOCS
+
 
 slow_roaring_benchmarks : src/roaring.c src/roaring_benchmarks.c
 	$(CC) $(CFLAGS) -DDISABLE_X64 -o slow_roaring_benchmarks src/roaring_benchmarks.c
@@ -55,11 +60,18 @@ concise_benchmarks: src/concise_benchmarks.cpp
 ewah64_benchmarks: src/ewah64_benchmarks.cpp
 	$(CXX) $(CXXFLAGS)  -o ewah64_benchmarks ./src/ewah64_benchmarks.cpp -IEWAHBoolArray/headers
 
-stl_vector_benchmarks: src/stl_vector_benchmarks.cpp src/allocator.h
+stl_vector_benchmarks: src/stl_vector_benchmarks.cpp src/memtrackingallocator.h
 	$(CXX) $(CXXFLAGS)  -o stl_vector_benchmarks ./src/stl_vector_benchmarks.cpp
 
-stl_hashset_benchmarks: src/stl_hashset_benchmarks.cpp src/allocator.h
+stl_hashset_benchmarks: src/stl_hashset_benchmarks.cpp src/memtrackingallocator.h
 	$(CXX) $(CXXFLAGS)  -o stl_hashset_benchmarks ./src/stl_hashset_benchmarks.cpp
+
+
+stl_vector_benchmarks_memtracked: src/stl_vector_benchmarks.cpp src/memtrackingallocator.h
+	$(CXX) $(CXXFLAGS)  -o stl_vector_benchmarks_memtracked ./src/stl_vector_benchmarks.cpp -DMEMTRACKED
+
+stl_hashset_benchmarks_memtracked: src/stl_hashset_benchmarks.cpp src/memtrackingallocator.h
+	$(CXX) $(CXXFLAGS)  -o stl_hashset_benchmarks_memtracked ./src/stl_hashset_benchmarks.cpp -DMEMTRACKED
 
 bitset_benchmarks: src/bitset_benchmarks.c cbitset/include/bitset.h cbitset/src/bitset.c
 	$(CXX) $(CXXFLAGS)  -o bitset_benchmarks ./src/bitset_benchmarks.c cbitset/src/bitset.c   -Icbitset/include

@@ -19,7 +19,11 @@ extern "C" {
 }
 #endif
 
-#include "allocator.h"
+#ifdef MEMTRACKED
+#include "memtrackingallocator.h"
+#else
+size_t memory_usage;
+#endif
 
 void initializeMemUsageCounter()  {
     memory_usage = 0;
@@ -30,8 +34,11 @@ uint64_t getMemUsageInBytes()  {
 }
 
 
-
+#ifdef MEMTRACKED
 typedef std::vector<uint32_t,MemoryCountingAllocator<uint32_t> >  vector;
+#else
+typedef std::vector<uint32_t>  vector;
+#endif
 
 static vector  fast_logicalor(size_t n, const vector **inputs) {
 	  class StdVectorPtr {
@@ -245,13 +252,13 @@ int main(int argc, char **argv) {
     RDTSC_START(cycles_start);
     uint64_t quartcount = 0;
     for (size_t i = 0; i < count ; ++i) {
-      auto X1 = std::find(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/4 ); 
+      auto X1 = std::find(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/4 );
       if(X1 != bitmaps[i].end())
       	quartcount ++;
-      auto X2 = std::find(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/2 ); 
+      auto X2 = std::find(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/2 );
       if(X2 != bitmaps[i].end())
       	quartcount ++;
-      auto X3 = std::find(bitmaps[i].begin(),bitmaps[i].end(),3*maxvalue/4 ); 
+      auto X3 = std::find(bitmaps[i].begin(),bitmaps[i].end(),3*maxvalue/4 );
       if(X3 != bitmaps[i].end())
       	quartcount ++;
     }

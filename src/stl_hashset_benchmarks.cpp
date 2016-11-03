@@ -20,7 +20,13 @@ extern "C" {
 }
 #endif
 
-#include "allocator.h"
+
+
+#ifdef MEMTRACKED
+#include "memtrackingallocator.h"
+#else
+size_t memory_usage;
+#endif
 
 void initializeMemUsageCounter()  {
     memory_usage = 0;
@@ -31,9 +37,11 @@ uint64_t getMemUsageInBytes()  {
 }
 
 
-
+#ifdef MEMTRACKED
 typedef std::unordered_set<uint32_t,std::hash<uint32_t>,std::equal_to<uint32_t>,MemoryCountingAllocator<uint32_t> >  hashset;
-
+#else
+typedef std::unordered_set<uint32_t>  hashset;
+#endif
 
 /**
  * Once you have collected all the integers, build the bitmaps.

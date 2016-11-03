@@ -1,19 +1,43 @@
-#define _GNU_SOURCE
 #define __STDC_FORMAT_MACROS 1
+#ifdef RECORD_MALLOCS
+#include "cmemcounter.h"
+#endif
+
 #include <inttypes.h>
 #include "benchmark.h"
 #include "numbersfromtextfiles.h"
 #include "roaring.c"
+
+
 /**
  * Once you have collected all the integers, build the bitmaps.
  */
 static roaring_bitmap_t **create_all_bitmaps(size_t *howmany,
-        uint32_t **numbers, size_t count) {
+        uint32_t **numbers, size_t count, bool runoptimize, bool copyonwrite, bool verbose, uint64_t * totalsize) {
+    *totalsize = 0;
     if (numbers == NULL) return NULL;
+    size_t savedmem = 0;
+#ifdef RECORD_MALLOCS
+    size_t totalmalloced = 0;
+#endif
     roaring_bitmap_t **answer = malloc(sizeof(roaring_bitmap_t *) * count);
+#ifdef RECORD_MALLOCS
+    size_t bef = malloced_memory_usage;
+#endif
     for (size_t i = 0; i < count; i++) {
         answer[i] = roaring_bitmap_of_ptr(howmany[i], numbers[i]);
+        answer[i]->copy_on_write = copyonwrite;
+        if(runoptimize) roaring_bitmap_run_optimize(answer[i]);
+        savedmem += roaring_bitmap_shrink_to_fit(answer[i]);
+        *totalsize += roaring_bitmap_portable_size_in_bytes(answer[i]);
     }
+#ifdef RECORD_MALLOCS
+    size_t aft = malloced_memory_usage;
+    totalmalloced += aft - bef;
+    if(verbose) printf("total malloc: %zu vs. reported %llu (%f %%) \n",totalmalloced,*totalsize,(totalmalloced-*totalsize)*100.0/ *totalsize);
+    *totalsize = totalmalloced;
+#endif
+    if(verbose) printf("saved bytes by shrinking : %zu \n",savedmem);
     return answer;
 }
 
@@ -94,19 +118,13 @@ int main(int argc, char **argv) {
     uint64_t cycles_start = 0, cycles_final = 0;
 
     RDTSC_START(cycles_start);
-    roaring_bitmap_t **bitmaps = create_all_bitmaps(howmany, numbers, count);
+    uint64_t totalsize = 0;
+    roaring_bitmap_t **bitmaps = create_all_bitmaps(howmany, numbers, count,runoptimize,copyonwrite, verbose, &totalsize);
     RDTSC_FINAL(cycles_final);
     if (bitmaps == NULL) return -1;
     if(verbose) printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
-    uint64_t totalsize = 0;
-    for (int i = 0; i < (int) count; ++i) {
-        bitmaps[i]->copy_on_write = copyonwrite;
-        if(runoptimize) roaring_bitmap_run_optimize(bitmaps[i]);
-        totalsize += roaring_bitmap_portable_size_in_bytes(bitmaps[i]);
-    }
     data[0] = totalsize;
     if(verbose) printf("Total size in bytes =  %" PRIu64 " \n", totalsize);
-
     uint64_t successive_and = 0;
     uint64_t successive_or = 0;
     uint64_t total_or = 0;

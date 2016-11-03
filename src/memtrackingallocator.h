@@ -1,15 +1,23 @@
 #ifndef INCLUDE_ALLOC_H
 #define INCLUDE_ALLOC_H
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <cstdint>
 #include <iostream>
-
-
+#include <algorithm>
+#include <vector>
+#include <unordered_set>
+#include <set>
+#include <list>
+#include <queue>
 #include <map>
 #include <vector>
 
 
-uint64_t memory_usage;
+uint64_t memory_usage = 0;
 
 // use this when calling STL object if you want
 // to keep track of memory usage
