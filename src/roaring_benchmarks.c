@@ -1,4 +1,6 @@
 #define __STDC_FORMAT_MACROS 1
+#define _GNU_SOURCE
+
 #ifdef RECORD_MALLOCS
 #include "cmemcounter.h"
 #endif
@@ -34,7 +36,7 @@ static roaring_bitmap_t **create_all_bitmaps(size_t *howmany,
 #ifdef RECORD_MALLOCS
     size_t aft = malloced_memory_usage;
     totalmalloced += aft - bef;
-    if(verbose) printf("total malloc: %zu vs. reported %llu (%f %%) \n",totalmalloced,*totalsize,(totalmalloced-*totalsize)*100.0/ *totalsize);
+    if(verbose) printf("total malloc: %zu vs. reported %llu (%f %%) \n",totalmalloced,(unsigned long long)*totalsize,(totalmalloced-*totalsize)*100.0/ *totalsize);
     *totalsize = totalmalloced;
 #endif
     if(verbose) printf("saved bytes by shrinking : %zu \n",savedmem);
