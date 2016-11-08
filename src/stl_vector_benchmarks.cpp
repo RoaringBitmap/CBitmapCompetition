@@ -252,14 +252,11 @@ int main(int argc, char **argv) {
     RDTSC_START(cycles_start);
     uint64_t quartcount = 0;
     for (size_t i = 0; i < count ; ++i) {
-      auto X1 = std::find(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/4 );
-      if(X1 != bitmaps[i].end())
+      if ( std::binary_search(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/4 ) )
       	quartcount ++;
-      auto X2 = std::find(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/2 );
-      if(X2 != bitmaps[i].end())
+      if ( std::binary_search(bitmaps[i].begin(),bitmaps[i].end(),maxvalue/2 ) )
       	quartcount ++;
-      auto X3 = std::find(bitmaps[i].begin(),bitmaps[i].end(),3*maxvalue/4 );
-      if(X3 != bitmaps[i].end())
+      if ( std::binary_search(bitmaps[i].begin(),bitmaps[i].end(),3*maxvalue/4 ) )
       	quartcount ++;
     }
     RDTSC_FINAL(cycles_final);
