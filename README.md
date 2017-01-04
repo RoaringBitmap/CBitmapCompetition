@@ -35,6 +35,9 @@ For each competitive technique, we apply the following recipe:
 
 For a working example, see https://github.com/RoaringBitmap/CBitmapCompetition/blob/master/src/bitset_benchmarks.c
 
+
+Note: for some selected formats, we also include the successive differences (ANDNOT) as well as the symmetric difference (XOR).
+
 ## Results
 
 GCC 6.2, Skylake processor (3.4 GHz), CRoaring 0.2.3 (Sept. 9 2016).
