@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     bool verbose = false;
     bool copyonwrite = false;
     char *extension = ".txt";
-    uint64_t data[6];
+    uint64_t data[8];
     while ((c = getopt(argc, argv, "cvre:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
@@ -185,15 +185,53 @@ int main(int argc, char **argv) {
     if(verbose) printf("Quartile queries on %zu bitmaps took %" PRIu64 " cycles\n", count,
            data[5]);
 
+   /***
+   * For good measure, we add ANDNOT and XOR
+   ***/
+       uint64_t successive_andnot = 0;
+       uint64_t successive_xor = 0;
+
+       RDTSC_START(cycles_start);
+       for (int i = 0; i < (int)count - 1; ++i) {
+           roaring_bitmap_t *tempandnot =
+               roaring_bitmap_andnot(bitmaps[i], bitmaps[i + 1]);
+           successive_andnot += roaring_bitmap_get_cardinality(tempandnot);
+           roaring_bitmap_free(tempandnot);
+       }
+       RDTSC_FINAL(cycles_final);
+       data[6] = cycles_final - cycles_start;
+
+       if(verbose) printf("Successive differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
+              cycles_final - cycles_start);
+
+
+       RDTSC_START(cycles_start);
+       for (int i = 0; i < (int)count - 1; ++i) {
+           roaring_bitmap_t *tempxor =
+               roaring_bitmap_xor(bitmaps[i], bitmaps[i + 1]);
+           successive_xor += roaring_bitmap_get_cardinality(tempxor);
+           roaring_bitmap_free(tempxor);
+       }
+       RDTSC_FINAL(cycles_final);
+       data[7] = cycles_final - cycles_start;
+
+       if(verbose) printf("Successive symmetric differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
+              cycles_final - cycles_start);
+   /***
+   * End of ANDNOT and XOR
+   ***/
+
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
 
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f \n",
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f \n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
       data[2]*1.0/successivecard,
       data[3]*1.0/totalcard,
       data[4]*1.0/totalcard,
-      data[5]*1.0/(3*count)
+      data[5]*1.0/(3*count),
+      data[6]*1.0/successivecard,
+      data[7]*1.0/successivecard
     );
 
     for (int i = 0; i < (int)count; ++i) {
