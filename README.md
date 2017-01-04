@@ -57,263 +57,222 @@ Where it appears, the "-r" flag means "with better compression". The "-c" flag m
 $ make test
 ./scripts/all.sh
 # For each data set, we print data size (in bits per value), successive intersections, successive unions and total unions [we compute the total  union first naively and then (if supported) using a heap-based approach], followed by quartile point queries (in cycles per input value)
-# processing file  census1881_srt
+# processing file  census-income
 # bitset_benchmarks
-               888.07                32.69                21.97                16.09                16.01                 2.76
+                 5.66                 0.14                 0.14                 0.09                 0.09                 3.61
 # stl_vector_benchmarks
-                 0.00                 3.95                 6.20               620.39                35.29               150.35
+                 0.00                 7.90                 7.77                43.87                16.82               424.84
 # stl_vector_benchmarks_memtracked
-                32.00                 3.95                 8.42               842.59                41.55               149.40
+                32.00                 7.95                 9.69                54.87                19.56               421.40
 # stl_hashset_benchmarks_memtracked
-               216.84                 1.15               202.47               337.57               382.85                36.67
+               218.55                49.79               192.23                88.52               119.65                47.85
 # stl_hashset_benchmarks
-                 0.00                 1.14               204.85               336.55               381.86                34.64
+                 0.00                49.92               192.26                87.41               117.64                45.78
 # bitmagic_benchmarks
-               254.06                 5.99                19.40                 7.13                 9.80                10.34
+                 8.23                 0.43                 0.44                 0.19                 0.23                13.89                 0.44                 0.44
 # bitmagic_benchmarks -r
-                40.05                 1.75                 2.94                 4.58                 3.65                11.70
+                 6.83                 0.48                 0.44                 0.16                 0.22                33.49                 0.43                 0.45
 # slow_roaring_benchmarks -r
-                 2.16                 0.14                 1.08                 3.26                 3.80                17.31
-# malloced_roaring_benchmarks -r
-                 2.77                 0.53                 4.84                 3.58                 8.44                18.09
+                 2.60                 0.56                 0.41                 0.06                 0.60                73.47                  0.58                  0.53
 # roaring_benchmarks -r
-                 2.16                 0.14                 1.09                 3.19                 3.84                17.62
-# roaring_benchmarks -c -r
-                 2.16                 0.13                 0.57                 3.29                 3.91                19.26
-# roaring_benchmarks
-                 6.09                 0.14                 1.20                 3.96                 8.47                19.86
-# roaring_benchmarks -c
-                 6.09                 0.14                 0.50                 4.15                 8.51                21.42
+                 2.60                 0.34                 0.27                 0.05                 0.47                66.10                  0.34                  0.37
 # ewah32_benchmarks
-                 2.91                 0.45                 2.44               166.62                 5.10               529.85
+                 3.29                 1.37                 1.96                 0.46                 1.53              3088.68
 # ewah64_benchmarks
-                 4.54                 0.36                 2.03               121.08                 4.32               436.92
+                 3.86                 0.81                 1.03                 0.25                 1.12              1734.40
 # wah32_benchmarks
-                 2.95                 1.84                 3.06               197.52                 5.74              1765.99
+                 3.37                 1.79                 2.11                 1.83                 3.40             18781.43
 # concise_benchmarks
-                 2.48                 1.90                 3.41               221.43                 6.62              1860.49
+                 2.94                 2.14                 2.45                 2.19                 4.05             19049.08
 
 
 # processing file  census-income_srt
 # bitset_benchmarks
-                 6.01                 0.15                 0.15                 0.10                 0.10                 3.96
+                 6.01                 0.15                 0.15                 0.09                 0.10                 3.79
 # stl_vector_benchmarks
-                 0.00                 4.52                 5.47                37.26                10.85               557.48
+                 0.00                 4.55                 5.51                37.32                10.90               643.86
 # stl_vector_benchmarks_memtracked
-                32.00                 4.69                 7.45                50.27                13.79               553.58
+                32.00                 4.73                 7.48                50.31                13.85               537.33
 # stl_hashset_benchmarks_memtracked
-               217.89                27.39               166.14                59.08                74.51                47.62
+               217.89                27.52               166.58                59.30                72.88                47.01
 # stl_hashset_benchmarks
-                 0.00                27.41               165.05                59.38                73.96                45.66
-# bitmagic_benchmarks
-                 8.52                 0.45                 0.47                 0.19                 0.25                14.92
+                 0.00                28.32               166.78                59.56                72.59                45.48
 # bitmagic_benchmarks -r
-                 4.57                 0.34                 0.33                 0.19                 0.25                51.19
+                 4.57                 0.32                 0.33                 0.19                 0.25                51.59                 0.35                 0.36
 # slow_roaring_benchmarks -r
-                 0.60                 0.18                 0.31                 0.19                 0.03                64.95
-# malloced_roaring_benchmarks -r
-                 0.62                 0.27                 0.42                 0.17                 0.04                53.73
+                 0.60                 0.18                 0.31                 0.12                 0.03                64.13                  0.26                  0.38
 # roaring_benchmarks -r
-                 0.60                 0.17                 0.31                 0.17                 0.03                66.10
-# roaring_benchmarks -c -r
-                 0.60                 0.17                 0.30                 0.17                 0.03                71.85
-# roaring_benchmarks
-                 2.99                 0.18                 0.28                 0.28                 0.59                74.50
-# roaring_benchmarks -c
-                 2.99                 0.18                 0.28                 0.28                 0.59                77.78
+                 0.60                 0.17                 0.31                 0.11                 0.03                63.18                  0.24                  0.35
 # ewah32_benchmarks
-                 0.64                 0.27                 0.55                 0.15                 0.12               896.87
+                 0.64                 0.27                 0.55                 0.15                 0.12               896.74
 # ewah64_benchmarks
-                 0.90                 0.20                 0.38                 0.11                 0.10               647.64
+                 0.90                 0.20                 0.38                 0.11                 0.10               647.48
 # wah32_benchmarks
-                 0.65                 0.45                 0.65                 0.47                 0.47              3599.45
+                 0.65                 0.45                 0.65                 0.46                 0.46              3599.27
 # concise_benchmarks
-                 0.55                 0.56                 0.76                 0.59                 0.61              3761.63
+                 0.55                 0.56                 0.76                 0.59                 0.61              3770.17
 
 
 # processing file  census1881
 # bitset_benchmarks
-               523.54                19.58                13.41                 9.71                 9.46                 2.44
+               523.54                19.61                13.91                 9.87                 9.62                 2.38
 # stl_vector_benchmarks
-                 0.00                 3.28                 6.08               542.32                66.75               167.34
+                 0.00                 3.30                 6.07               591.74                66.85               167.44
 # stl_vector_benchmarks_memtracked
-                32.00                 3.28                 8.14               719.23                74.76               164.85
+                32.00                 3.31                 8.12               721.34                74.42               159.67
 # stl_hashset_benchmarks_memtracked
-               212.26                 0.41               294.87              1008.50              1214.96                38.24
+               212.26                 0.41               293.77              1237.41              1714.23                38.62
 # stl_hashset_benchmarks
-                 0.00                 0.41               293.02               999.85              1191.22                36.18
-# bitmagic_benchmarks
-               102.18                 2.74                 7.98                 2.99                 4.77                 9.95
+                 0.00                 0.54               344.40              1397.38              1705.95                36.22
 # bitmagic_benchmarks -r
-                62.63                 1.96                 4.32                 2.23                 3.93                11.65
+                62.63                 2.34                 5.28                 2.79                 4.95                11.52                 3.84                 5.32
 # slow_roaring_benchmarks -r
-                15.08                 0.12                 1.08                 4.03                10.54                16.47
-# malloced_roaring_benchmarks -r
-                15.35                 0.30                 2.69                 2.66                10.44                17.82
+                15.08                 0.13                 1.13                 4.10                11.13                17.51                  0.71                  1.04
 # roaring_benchmarks -r
-                15.08                 0.12                 1.11                 2.53                 8.56                17.40
-# roaring_benchmarks -c -r
-                15.08                 0.12                 0.51                 2.50                 8.57                18.78
-# roaring_benchmarks
-                15.97                 0.11                 1.03                 2.68                 6.06                17.28
-# roaring_benchmarks -c
-                15.97                 0.11                 0.41                 2.72                 6.12                18.77
+                15.08                 0.13                 1.17                 2.58                 9.14                16.90                  0.67                  1.05
 # ewah32_benchmarks
-                33.77                 3.28                27.23               263.46                50.94              8373.31
+                33.77                 3.28                27.46               264.30                51.67              8449.99
 # ewah64_benchmarks
-                43.77                 1.85                14.48                99.36                25.83              4820.32
+                43.77                 2.03                14.73                99.87                26.30              5115.59
 # wah32_benchmarks
-                34.32                14.29                29.41               387.30                44.77             25940.71
+                34.32                14.37                29.60               388.06                45.18             26055.74
 # concise_benchmarks
-                25.56                20.85                33.71               398.36                57.26             29711.60
+                25.56                21.00                33.78               399.81                57.75             29877.20
 
 
-# processing file  census-income
+# processing file  census1881_srt
 # bitset_benchmarks
-                 5.66                 0.14                 0.14                 0.09                 0.09                 4.02
+               888.07                40.77                30.86                24.67                24.64                 2.59
 # stl_vector_benchmarks
-                 0.00                 7.84                 7.73                43.71                16.76               416.50
+                 0.00                 3.99                 6.28               656.86                35.93               207.74
 # stl_vector_benchmarks_memtracked
-                32.00                 7.86                 9.66                54.83                19.49               411.66
+                32.00                 4.01                 8.41               867.98                42.18               215.52
 # stl_hashset_benchmarks_memtracked
-               218.55                49.50               192.53                87.78               121.11                48.48
+               216.84                 1.49               219.31               423.03               474.66                36.45
 # stl_hashset_benchmarks
-                 0.00                49.62               192.60                88.55               121.70                46.75
-# bitmagic_benchmarks
-                 8.23                 0.44                 0.43                 0.18                 0.23                15.25
+                 0.00                 1.44               220.04               422.29               478.08                35.04
 # bitmagic_benchmarks -r
-                 6.83                 0.49                 0.43                 0.16                 0.22                36.78
+                40.05                 1.78                 3.05                 4.64                 3.83                11.14                 3.71                 3.16
 # slow_roaring_benchmarks -r
-                 2.60                 0.56                 0.41                 0.27                 0.62                76.44
-# malloced_roaring_benchmarks -r
-                 2.62                 0.44                 0.36                 0.17                 0.56                62.08
+                 2.16                 0.14                 1.08                 3.27                 3.85                17.65                  0.57                  0.95
 # roaring_benchmarks -r
-                 2.60                 0.34                 0.27                 0.17                 0.48                63.18
-# roaring_benchmarks -c -r
-                 2.60                 0.34                 0.28                 0.17                 0.48                66.12
-# roaring_benchmarks
-                 2.74                 0.31                 0.25                 0.19                 0.46                66.36
-# roaring_benchmarks -c
-                 2.74                 0.31                 0.25                 0.19                 0.47                67.90
+                 2.16                 0.18                 1.11                 3.20                 3.86                18.78                  0.59                  0.97
 # ewah32_benchmarks
-                 3.29                 1.37                 1.95                 0.46                 1.54              3089.20
+                 2.91                 0.45                 2.44               166.89                 5.13               530.88
 # ewah64_benchmarks
-                 3.86                 0.81                 1.03                 0.25                 1.11              1733.77
+                 4.54                 0.36                 2.04               121.30                 4.34               437.56
 # wah32_benchmarks
-                 3.37                 1.79                 2.11                 1.83                 3.38             18751.95
+                 2.95                 1.57                 3.03               197.89                 5.76              1769.16
 # concise_benchmarks
-                 2.94                 2.14                 2.45                 2.19                 4.05             19039.90
+                 2.48                 1.91                 3.39               222.00                 6.66              1861.66
+
+
+# processing file  weather_sept_85
+# bitset_benchmarks
+                15.26                 0.59                 0.57                 0.61                 0.63                 3.58
+# stl_vector_benchmarks
+                 0.00                 7.57                 8.39               105.51                29.54               899.47
+# stl_vector_benchmarks_memtracked
+                32.00                 7.50                10.86               127.69                32.90               904.89
+# stl_hashset_benchmarks_memtracked
+               219.92                34.25               286.69               246.48               319.42                54.42
+# stl_hashset_benchmarks
+                 0.00                39.11               308.20               311.13               352.41                52.49
+# bitmagic_benchmarks -r
+                10.06                 0.84                 0.86                 0.44                 0.56                27.40                 0.82                 0.87
+# slow_roaring_benchmarks -r
+                 5.38                 1.15                 0.91                 0.27                 1.47                90.51                  1.21                  1.10
+# roaring_benchmarks -r
+                 5.38                 0.55                 0.57                 0.16                 1.06                78.11                  0.52                  0.76
+# ewah32_benchmarks
+                 6.67                 2.56                 4.29                 2.23                 4.39             13142.54
+# ewah64_benchmarks
+                 7.87                 1.50                 2.17                 1.26                 2.22              7306.96
+# wah32_benchmarks
+                 6.82                 3.55                 4.61                 4.91                 6.85             62945.58
+# concise_benchmarks
+                 5.88                 4.53                 5.44                 6.12                 8.52             68348.42
 
 
 # processing file  weather_sept_85_srt
 # bitset_benchmarks
-                11.39                 0.32                 0.30                 0.25                 0.27                 3.79
+                11.39                 0.31                 0.29                 0.25                 0.26                 3.62
 # stl_vector_benchmarks
-                 0.00                 4.36                 6.72                75.08                14.01               664.19
+                 0.00                 4.39                 6.52                71.05                14.09               661.29
 # stl_vector_benchmarks_memtracked
-                32.00                 4.42                 7.90                83.33                17.39               679.10
+                32.00                 4.45                 8.01                84.52                17.43               648.21
 # stl_hashset_benchmarks_memtracked
-               219.63                13.85               188.59                73.62               108.26                48.88
+               219.63                13.94               191.10                80.83               112.83                48.55
 # stl_hashset_benchmarks
-                 0.00                13.83               189.72                73.80               108.07                46.84
-# bitmagic_benchmarks
-                 9.23                 0.39                 0.54                 0.23                 0.29                13.22
+                 0.00                13.93               188.80                74.66               109.25                49.78
 # bitmagic_benchmarks -r
-                 1.98                 0.20                 0.22                 0.21                 0.33                45.47
+                 1.98                 0.19                 0.22                 0.21                 0.34                42.09                 0.25                 0.25
 # slow_roaring_benchmarks -r
-                 0.34                 0.09                 0.17                 0.15                 0.05                58.34
-# malloced_roaring_benchmarks -r
-                 0.36                 0.16                 0.30                 0.16                 0.10                53.70
+                 0.34                 0.09                 0.17                 0.04                 0.05                56.87                  0.15                  0.22
 # roaring_benchmarks -r
-                 0.34                 0.09                 0.18                 0.14                 0.05                51.57
-# roaring_benchmarks -c -r
-                 0.34                 0.09                 0.16                 0.15                 0.06                63.93
-# roaring_benchmarks
-                 3.24                 0.13                 0.24                 0.25                 0.58                57.63
-# roaring_benchmarks -c
-                 3.24                 0.13                 0.23                 0.26                 0.58                69.00
+                 0.34                 0.09                 0.17                 0.04                 0.05                54.16                  0.15                  0.22
 # ewah32_benchmarks
-                 0.54                 0.18                 0.47                 0.30                 0.10              2134.78
+                 0.54                 0.18                 0.47                 0.30                 0.10              2134.29
 # ewah64_benchmarks
-                 0.86                 0.15                 0.39                 0.23                 0.08              1792.52
+                 0.86                 0.15                 0.39                 0.23                 0.08              1792.34
 # wah32_benchmarks
-                 0.54                 0.34                 0.55                 0.58                 0.37              7178.43
+                 0.54                 0.34                 0.55                 0.58                 0.37              7187.56
 # concise_benchmarks
-                 0.43                 0.41                 0.62                 0.68                 0.44              7287.08
-
-
-# processing file  wikileaks-noquotes_srt
-# bitset_benchmarks
-               647.53                19.80                17.98                14.46                14.94                 2.98
-# stl_vector_benchmarks
-                 0.00                 4.17                 7.17               496.91                43.31               170.68
-# stl_vector_benchmarks_memtracked
-                32.00                 4.27                 9.58               676.28                53.75               163.01
-# stl_hashset_benchmarks_memtracked
-               228.86                24.62               178.43               262.67               357.22                43.33
-# stl_hashset_benchmarks
-                 0.00                24.73               176.67               260.78               356.87                42.63
-# bitmagic_benchmarks
-               381.41                13.18                25.27                 9.82                13.18                11.35
-# bitmagic_benchmarks -r
-                80.83                 3.80                 5.08                 8.85                 7.19                14.84
-# slow_roaring_benchmarks -r
-                 1.63                 0.68                 2.29                 1.87                 7.24                19.52
-# malloced_roaring_benchmarks -r
-                 2.58                 2.52                 7.63                 2.00                12.61                20.66
-# roaring_benchmarks -r
-                 1.63                 0.68                 2.37                 1.75                 7.33                20.32
-# roaring_benchmarks -c -r
-                 1.63                 0.68                 2.00                 1.83                 7.53                25.32
-# roaring_benchmarks
-                10.67                 0.74                 2.97                 3.03                13.62                25.33
-# roaring_benchmarks -c
-                10.67                 0.74                 2.32                 3.08                13.85                30.20
-# ewah32_benchmarks
-                 2.63                 0.69                 2.29               113.79                12.31               233.72
-# ewah64_benchmarks
-                 4.66                 0.68                 2.11                88.95                10.65               229.78
-# wah32_benchmarks
-                 2.67                 1.26                 2.52               133.02                12.36               506.14
-# concise_benchmarks
-                 2.23                 1.41                 2.63               149.17                14.03               493.11
+                 0.43                 0.41                 0.62                 0.69                 0.44              7255.16
 
 
 # processing file  wikileaks-noquotes
 # bitset_benchmarks
-               795.50                26.14                19.87                15.62                16.23                 4.15
+               795.50                25.96                20.02                15.25                15.71                 3.70
 # stl_vector_benchmarks
-                 0.00                 4.18                 7.03               519.83                52.01               200.73
+                 0.00                 4.17                 7.09               517.25                51.78               162.90
 # stl_vector_benchmarks_memtracked
-                32.00                 4.16                 9.27               695.20                62.65               187.60
+                32.00                 4.09                 9.30               696.16                62.35               167.07
 # stl_hashset_benchmarks_memtracked
-               226.35                12.47               228.19               381.41               503.96                45.15
+               226.35                13.09               228.93               389.72               514.31                43.90
 # stl_hashset_benchmarks
-                 0.00                12.55               246.69               379.17               501.97                42.67
-# bitmagic_benchmarks
-               474.39                24.81                59.02                12.32                16.46                12.10
+                 0.00                12.69               228.78               385.24               511.72                43.48
 # bitmagic_benchmarks -r
-                89.29                 4.97                 6.59                12.09                16.97                21.41
+                89.29                 4.63                 6.64                12.18                17.12                21.22                 7.78                 7.28
 # slow_roaring_benchmarks -r
-                 5.89                 1.50                 4.06                 2.72                24.33                29.74
-# malloced_roaring_benchmarks -r
-                 7.04                 4.41                10.65                 3.00                30.46                30.32
+                 5.89                 1.51                 4.07                 2.75                24.42                28.42                  2.69                  3.92
 # roaring_benchmarks -r
-                 5.89                 1.52                 4.12                 2.62                24.29                27.52
-# roaring_benchmarks -c -r
-                 5.89                 1.52                 3.57                 2.73                24.52                31.24
-# roaring_benchmarks
-                16.49                 1.39                 4.46                 4.27                20.91                38.77
-# roaring_benchmarks -c
-                16.49                 1.39                 3.76                 4.35                21.34                46.23
+                 5.89                 1.51                 4.12                 2.71                24.37                27.51                  2.72                  3.92
 # ewah32_benchmarks
-                10.83                 2.67                 9.14               311.90                47.35               974.41
+                10.83                 2.68                 8.89               311.74                47.17               973.89
 # ewah64_benchmarks
-                19.41                 2.55                 8.31               191.74                38.67               976.52
+                19.41                 2.56                 8.32               191.55                38.88               975.16
 # wah32_benchmarks
-                10.89                 5.99                10.70               415.33                46.39              2270.84
+                10.89                 6.01                10.75               415.10                46.42              2280.43
 # concise_benchmarks
-                10.25                 6.43                11.27               444.22                52.48              2288.70
+                10.25                 6.44                11.30               444.45                52.39              2300.83
+
+
+# processing file  wikileaks-noquotes_srt
+# bitset_benchmarks
+               647.53                19.72                18.88                14.58                15.29                 2.94
+# stl_vector_benchmarks
+                 0.00                 4.16                 7.22               497.70                43.27               153.42
+# stl_vector_benchmarks_memtracked
+                32.00                 4.28                 9.56               676.04                53.54               147.12
+# stl_hashset_benchmarks_memtracked
+               228.86                24.69               178.18               270.02               360.99                43.88
+# stl_hashset_benchmarks
+                 0.00                25.06               176.82               270.77               362.73                42.64
+# bitmagic_benchmarks -r
+                80.83                 3.55                 5.11                 8.89                 7.26                15.06                 5.88                 5.59
+# slow_roaring_benchmarks -r
+                 1.63                 0.68                 2.29                 1.87                 7.36                20.94                  1.28                  1.87
+# roaring_benchmarks -r
+                 1.63                 0.69                 2.39                 1.79                 7.32                20.04                  1.34                  2.02
+# ewah32_benchmarks
+                 2.63                 0.69                 2.29               113.61                12.31               234.11
+# ewah64_benchmarks
+                 4.66                 0.68                 2.11                89.05                10.74               228.68
+# wah32_benchmarks
+                 2.67                 1.26                 2.52               132.85                12.34               507.84
+# concise_benchmarks
+                 2.23                 1.40                 2.62               148.78                13.75               494.27
 ```
 
 ## Usage
