@@ -79,7 +79,7 @@ stl_hashset_benchmarks_memtracked: src/stl_hashset_benchmarks.cpp src/memtrackin
 	$(CXX) $(CXXFLAGS)  -o stl_hashset_benchmarks_memtracked ./src/stl_hashset_benchmarks.cpp -DMEMTRACKED
 
 bitset_benchmarks: src/bitset_benchmarks.c cbitset/include/bitset.h cbitset/src/bitset.c
-	$(CXX) $(CXXFLAGS)  -o bitset_benchmarks ./src/bitset_benchmarks.c cbitset/src/bitset.c   -Icbitset/include
+	$(CC) $(CFLAGS)  -o bitset_benchmarks ./src/bitset_benchmarks.c cbitset/src/bitset.c   -Icbitset/include
 
 clean:
 	rm -r -f   $(EXECUTABLES) src/roaring.c src/roaring.h src/roaring.hh

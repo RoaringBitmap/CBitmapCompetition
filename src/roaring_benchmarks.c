@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     bool verbose = false;
     bool copyonwrite = false;
     char *extension = ".txt";
-    uint64_t data[8];
+    uint64_t data[9];
     while ((c = getopt(argc, argv, "cvre:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
@@ -130,6 +130,7 @@ int main(int argc, char **argv) {
     uint64_t successive_and = 0;
     uint64_t successive_or = 0;
     uint64_t total_or = 0;
+    uint64_t total_count = 0;
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
@@ -221,9 +222,27 @@ int main(int argc, char **argv) {
    * End of ANDNOT and XOR
    ***/
 
+       RDTSC_START(cycles_start);
+       for (size_t i = 0; i < count; ++i) {
+          roaring_bitmap_t *ra = bitmaps[i];
+          roaring_uint32_iterator_t *  j = roaring_create_iterator(ra);
+          while(j->has_value) {
+            total_count ++;
+            roaring_advance_uint32_iterator(j);
+          }
+          roaring_free_uint32_iterator(j);
+       }
+       RDTSC_FINAL(cycles_final);
+       data[8] = cycles_final - cycles_start;
+
+       if(verbose) printf("Iterating over %zu bitmaps took %" PRIu64 " cycles\n", count,
+              cycles_final - cycles_start);
+
+    assert(totalcard == total_count);
+
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
 
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f \n",
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f  %20.2f \n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
       data[2]*1.0/successivecard,
@@ -231,7 +250,8 @@ int main(int argc, char **argv) {
       data[4]*1.0/totalcard,
       data[5]*1.0/(3*count),
       data[6]*1.0/successivecard,
-      data[7]*1.0/successivecard
+      data[7]*1.0/successivecard,
+      data[8]*1.0/totalcard
     );
 
     for (int i = 0; i < (int)count; ++i) {

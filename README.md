@@ -36,7 +36,7 @@ For each competitive technique, we apply the following recipe:
 For a working example, see https://github.com/RoaringBitmap/CBitmapCompetition/blob/master/src/bitset_benchmarks.c
 
 
-Note: for some selected formats, we also include the successive differences (ANDNOT) as well as the symmetric difference (XOR).
+Note: for some selected formats, we also include the successive differences (ANDNOT) as well as the symmetric difference (XOR), and also the time required to iterate over all btimaps.
 
 ## Results
 

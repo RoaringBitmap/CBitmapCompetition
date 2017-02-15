@@ -3,6 +3,7 @@
 #endif
 #define __STDC_FORMAT_MACROS 1
 #include <inttypes.h>
+#include <assert.h>
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -120,7 +121,7 @@ int main(int argc, char **argv) {
     const char *extension = ".txt";
     bool verbose = false;
     bool memorysavingmode = false;
-    uint64_t data[8];
+    uint64_t data[9];
     while ((c = getopt(argc, argv, "rve:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
@@ -193,6 +194,7 @@ int main(int argc, char **argv) {
     uint64_t successive_and = 0;
     uint64_t successive_or = 0;
     uint64_t total_or = 0;
+    uint64_t total_count = 0;
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
@@ -283,10 +285,22 @@ int main(int argc, char **argv) {
     /**
     * end of andnot and xor
     */
+    RDTSC_START(cycles_start);
+    for (size_t i = 0; i < count; ++i) {
+        const bvect & b = bitmaps[i];
+        for(auto j = b.first(); j != b.end(); j++)
+          total_count ++;
+    }
+    RDTSC_FINAL(cycles_final);
+    data[8] = cycles_final - cycles_start;
+    if(verbose) printf("Iterating over %zu bitmaps took %" PRIu64 " cycles\n", count,
+                           cycles_final - cycles_start);
+
+    assert(totalcard == total_count);
 
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
 
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f \n",
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f \n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
       data[2]*1.0/successivecard,
@@ -294,7 +308,8 @@ int main(int argc, char **argv) {
       data[4]*1.0/totalcard,
       data[5]*1.0/(3*count),
       data[6]*1.0/successivecard,
-      data[7]*1.0/successivecard
+      data[7]*1.0/successivecard,
+      data[8]*1.0/totalcard
      );
 
 
