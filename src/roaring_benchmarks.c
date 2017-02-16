@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
             copyonwrite = true;
             if(verbose) printf("enabling copyonwrite\n");
             break;
-         case 'h':
+        case 'h':
             printusage(argv[0]);
             return 0;
         default:
@@ -103,19 +103,19 @@ int main(int argc, char **argv) {
     }
     uint32_t maxvalue = 0;
     for (size_t i = 0; i < count; i++) {
-      if( howmany[i] > 0 ) {
-        if(maxvalue < numbers[i][howmany[i]-1]) {
-           maxvalue = numbers[i][howmany[i]-1];
-         }
-      }
+        if( howmany[i] > 0 ) {
+            if(maxvalue < numbers[i][howmany[i]-1]) {
+                maxvalue = numbers[i][howmany[i]-1];
+            }
+        }
     }
     uint64_t totalcard = 0;
     for (size_t i = 0; i < count; i++) {
-      totalcard += howmany[i];
+        totalcard += howmany[i];
     }
     uint64_t successivecard = 0;
     for (size_t i = 1; i < count; i++) {
-       successivecard += howmany[i-1] + howmany[i];
+        successivecard += howmany[i-1] + howmany[i];
     }
     uint64_t cycles_start = 0, cycles_final = 0;
 
@@ -143,7 +143,7 @@ int main(int argc, char **argv) {
     data[1] = cycles_final - cycles_start;
 
     if(verbose) printf("Successive intersections on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
+                           cycles_final - cycles_start);
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
     }
     RDTSC_FINAL(cycles_final);
     if(verbose) printf("Successive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
+                           cycles_final - cycles_start);
     data[2] = cycles_final - cycles_start;
     RDTSC_START(cycles_start);
     roaring_bitmap_t * totalorbitmap = roaring_bitmap_or_many(count,(const roaring_bitmap_t **)bitmaps);
@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
     roaring_bitmap_free(totalorbitmap);
     RDTSC_FINAL(cycles_final);
     if(verbose) printf("Total unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
+                           cycles_final - cycles_start);
     data[3] = cycles_final - cycles_start;
     RDTSC_START(cycles_start);
     roaring_bitmap_t * totalorbitmapheap = roaring_bitmap_or_many_heap(count,(const roaring_bitmap_t **)bitmaps);
@@ -170,89 +170,87 @@ int main(int argc, char **argv) {
     roaring_bitmap_free(totalorbitmapheap);
     RDTSC_FINAL(cycles_final);
     if(verbose) printf("Total unions with heap on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
+                           cycles_final - cycles_start);
     data[4] = cycles_final - cycles_start;
 
     uint64_t quartcount;
     STARTBEST(quartile_test_repetitions)
     quartcount = 0;
     for (size_t i = 0; i < count ; ++i) {
-      quartcount += roaring_bitmap_contains(bitmaps[i],maxvalue/4);
-      quartcount += roaring_bitmap_contains(bitmaps[i],maxvalue/2);
-      quartcount += roaring_bitmap_contains(bitmaps[i],3*maxvalue/4);
+        quartcount += roaring_bitmap_contains(bitmaps[i],maxvalue/4);
+        quartcount += roaring_bitmap_contains(bitmaps[i],maxvalue/2);
+        quartcount += roaring_bitmap_contains(bitmaps[i],3*maxvalue/4);
     }
     ENDBEST(data[5])
 
     if(verbose) printf("Quartile queries on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           data[5]);
+                           data[5]);
 
-   /***
-   * For good measure, we add ANDNOT and XOR
-   ***/
-       uint64_t successive_andnot = 0;
-       uint64_t successive_xor = 0;
+    /***
+    * For good measure, we add ANDNOT and XOR
+    ***/
+    uint64_t successive_andnot = 0;
+    uint64_t successive_xor = 0;
 
-       RDTSC_START(cycles_start);
-       for (int i = 0; i < (int)count - 1; ++i) {
-           roaring_bitmap_t *tempandnot =
-               roaring_bitmap_andnot(bitmaps[i], bitmaps[i + 1]);
-           successive_andnot += roaring_bitmap_get_cardinality(tempandnot);
-           roaring_bitmap_free(tempandnot);
-       }
-       RDTSC_FINAL(cycles_final);
-       data[6] = cycles_final - cycles_start;
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        roaring_bitmap_t *tempandnot =
+            roaring_bitmap_andnot(bitmaps[i], bitmaps[i + 1]);
+        successive_andnot += roaring_bitmap_get_cardinality(tempandnot);
+        roaring_bitmap_free(tempandnot);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[6] = cycles_final - cycles_start;
 
-       if(verbose) printf("Successive differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
-              cycles_final - cycles_start);
+    if(verbose) printf("Successive differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
+                           cycles_final - cycles_start);
 
 
-       RDTSC_START(cycles_start);
-       for (int i = 0; i < (int)count - 1; ++i) {
-           roaring_bitmap_t *tempxor =
-               roaring_bitmap_xor(bitmaps[i], bitmaps[i + 1]);
-           successive_xor += roaring_bitmap_get_cardinality(tempxor);
-           roaring_bitmap_free(tempxor);
-       }
-       RDTSC_FINAL(cycles_final);
-       data[7] = cycles_final - cycles_start;
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        roaring_bitmap_t *tempxor =
+            roaring_bitmap_xor(bitmaps[i], bitmaps[i + 1]);
+        successive_xor += roaring_bitmap_get_cardinality(tempxor);
+        roaring_bitmap_free(tempxor);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[7] = cycles_final - cycles_start;
 
-       if(verbose) printf("Successive symmetric differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
-              cycles_final - cycles_start);
-   /***
-   * End of ANDNOT and XOR
-   ***/
-
-       RDTSC_START(cycles_start);
-       for (size_t i = 0; i < count; ++i) {
-          roaring_bitmap_t *ra = bitmaps[i];
-          roaring_uint32_iterator_t *  j = roaring_create_iterator(ra);
-          while(j->has_value) {
+    if(verbose) printf("Successive symmetric differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
+                           cycles_final - cycles_start);
+    /***
+    * End of ANDNOT and XOR
+    ***/
+    RDTSC_START(cycles_start);
+    for (size_t i = 0; i < count; ++i) {
+        roaring_bitmap_t *ra = bitmaps[i];
+        roaring_uint32_iterator_t  j;
+        roaring_init_iterator(ra, &j);
+        while(j.has_value) {
             total_count ++;
-            roaring_advance_uint32_iterator(j);
-          }
-          roaring_free_uint32_iterator(j);
-       }
-       RDTSC_FINAL(cycles_final);
-       data[8] = cycles_final - cycles_start;
-
-       if(verbose) printf("Iterating over %zu bitmaps took %" PRIu64 " cycles\n", count,
-              cycles_final - cycles_start);
+            roaring_advance_uint32_iterator(&j);
+        }
+    }
+    RDTSC_FINAL(cycles_final);
+    data[8] = cycles_final - cycles_start;
+    if(verbose) printf("Iterating over %zu bitmaps took %" PRIu64 " cycles\n", count,
+                           cycles_final - cycles_start);
 
     assert(totalcard == total_count);
 
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
 
     printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f  %20.2f \n",
-      data[0]*8.0/totalcard,
-      data[1]*1.0/successivecard,
-      data[2]*1.0/successivecard,
-      data[3]*1.0/totalcard,
-      data[4]*1.0/totalcard,
-      data[5]*1.0/(3*count),
-      data[6]*1.0/successivecard,
-      data[7]*1.0/successivecard,
-      data[8]*1.0/totalcard
-    );
+           data[0]*8.0/totalcard,
+           data[1]*1.0/successivecard,
+           data[2]*1.0/successivecard,
+           data[3]*1.0/totalcard,
+           data[4]*1.0/totalcard,
+           data[5]*1.0/(3*count),
+           data[6]*1.0/successivecard,
+           data[7]*1.0/successivecard,
+           data[8]*1.0/totalcard
+          );
 
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);
