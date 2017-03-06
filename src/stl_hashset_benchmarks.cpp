@@ -10,6 +10,8 @@
 #include <unordered_set>
 #include <list>
 #include <queue>
+#include <cassert>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,6 +75,26 @@ static void intersection(hashset& h1, hashset& h2, hashset& answer) {
   }
 }
 
+static void difference(hashset& h1, hashset& h2, hashset& answer) {
+  answer.clear();
+  for(hashset::iterator i = h1.begin(); i != h1.end(); i++) {
+    if(h2.find(*i) == h2.end())
+      answer.insert(*i);
+  }
+}
+
+static void symmetric_difference(hashset& h1, hashset& h2, hashset& answer) {
+  answer.clear();
+  answer.insert(h1.begin(), h1.end());
+  for(hashset::iterator i = h2.begin(); i != h2.end(); i++) {
+    auto x = answer.find(*i);
+    if(x == answer.end())
+      answer.insert(*i);
+    else
+      answer.erase(x);
+  }
+}
+
 static void inplace_union(hashset& h1, hashset& h2) {
   h1.insert(h2.begin(), h2.end());
 }
@@ -98,7 +120,7 @@ int main(int argc, char **argv) {
     int c;
     const char *extension = ".txt";
     bool verbose = false;
-    uint64_t data[6];
+    uint64_t data[9];
     initializeMemUsageCounter();
     while ((c = getopt(argc, argv, "ve:h")) != -1) switch (c) {
         case 'e':
@@ -162,6 +184,10 @@ int main(int argc, char **argv) {
     uint64_t successive_and = 0;
     uint64_t successive_or = 0;
     uint64_t total_or = 0;
+    uint64_t total_count = 0;
+    uint64_t successive_andnot = 0;
+    uint64_t successive_xor = 0;
+
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
@@ -228,15 +254,60 @@ int main(int argc, char **argv) {
     if(verbose) printf("Quartile queries on %zu bitmaps took %" PRIu64 " cycles\n", count,
            data[5]);
 
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        hashset v;
+        difference(bitmaps[i], bitmaps[i + 1], v);
+        successive_andnot += v.size();
+    }
+    RDTSC_FINAL(cycles_final);
+    data[6] = cycles_final - cycles_start;
+
+    if(verbose) printf("Successive differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
+           cycles_final - cycles_start);
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        hashset v;
+        symmetric_difference(bitmaps[i], bitmaps[i + 1], v);
+        successive_xor += v.size();
+    }
+    RDTSC_FINAL(cycles_final);
+    data[7] = cycles_final - cycles_start;
+
+    if(verbose) printf("Successive symmetric differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
+           cycles_final - cycles_start);
+
+    RDTSC_START(cycles_start);
+    for (size_t i = 0; i < count; ++i) {
+        hashset & b = bitmaps[i];
+        for(auto j = b.begin(); j != b.end() ; j++) {
+            total_count++;
+        }
+    }
+    RDTSC_FINAL(cycles_final);
+    data[8] = cycles_final - cycles_start;
+    assert(total_count == totalcard);
+
+    if(verbose) printf("Iterating over %zu bitmaps took %" PRIu64 " cycles\n", count,
+           cycles_final - cycles_start);
+
+
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
 
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f \n",
+    assert(successive_xor + successive_and == successive_or);
+
+
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f \n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
       data[2]*1.0/successivecard,
       data[3]*1.0/totalcard,
       data[4]*1.0/totalcard,
-      data[5]*1.0/(3*count)
+      data[5]*1.0/(3*count),
+      data[6]*1.0/successivecard,
+      data[7]*1.0/successivecard,
+      data[8]*1.0/totalcard
     );
 
     for (int i = 0; i < (int)count; ++i) {

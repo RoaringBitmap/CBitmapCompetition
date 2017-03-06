@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
     int c;
     const char *extension = ".txt";
     bool verbose = false;
-    uint64_t data[6];
+    uint64_t data[9];
     while ((c = getopt(argc, argv, "ve:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
@@ -119,6 +119,10 @@ int main(int argc, char **argv) {
     uint64_t successive_and = 0;
     uint64_t successive_or = 0;
     uint64_t total_or = 0;
+    uint64_t total_count = 0;
+    uint64_t successive_andnot = 0;
+    uint64_t successive_xor = 0;
+
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
@@ -184,15 +188,58 @@ int main(int argc, char **argv) {
     if(verbose) printf("Quartile queries on %zu bitmaps took %" PRIu64 " cycles\n", count,
            data[5]);
 
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        EWAHBoolArray<uint32_t>  tempandnot;
+        bitmaps[i].logicalandnot(bitmaps[i + 1],tempandnot);
+        successive_andnot += tempandnot.numberOfOnes();
+    }
+    RDTSC_FINAL(cycles_final);
+    data[6] = cycles_final - cycles_start;
+
+    if(verbose) printf("Successive differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
+           cycles_final - cycles_start);
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        EWAHBoolArray<uint32_t>  tempxor;
+        bitmaps[i].logicalxor(bitmaps[i + 1],tempxor);
+        successive_xor += tempxor.numberOfOnes();
+    }
+    RDTSC_FINAL(cycles_final);
+    data[7] = cycles_final - cycles_start;
+
+    if(verbose) printf("Successive symmetric differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
+           cycles_final - cycles_start);
+
+    RDTSC_START(cycles_start);
+    for (size_t i = 0; i < count; ++i) {
+        EWAHBoolArray<uint32_t> & b = bitmaps[i];
+        for (auto j = b.begin(); j != b.end(); ++j) {
+            total_count++;
+        }
+    }
+    RDTSC_FINAL(cycles_final);
+    data[8] = cycles_final - cycles_start;
+    assert(total_count == totalcard);
+
+    if(verbose) printf("Iterating over %zu bitmaps took %" PRIu64 " cycles\n", count,
+           cycles_final - cycles_start);
+
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
 
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f \n",
+    assert(successive_xor + successive_and == successive_or);
+
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f \n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
       data[2]*1.0/successivecard,
       data[3]*1.0/totalcard,
       data[4]*1.0/totalcard,
-      data[5]*1.0/(3*count)
+      data[5]*1.0/(3*count),
+      data[6]*1.0/successivecard,
+      data[7]*1.0/successivecard,
+      data[8]*1.0/totalcard
     );
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);

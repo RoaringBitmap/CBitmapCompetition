@@ -4,16 +4,16 @@
 The goal of this project is to compare on realistic data different C and C++ techniques representing sets of integers.
 
 We start from a collection of sets of sorted integers.
-For example, we might have 200 sets. 
+For example, we might have 200 sets.
 For each of these collections of sets, we do the following :  
 
--  We report the memory usage as best we can. Of course, data can always be compressed more or less aggressively to disk, but an important metric is how much RAM the bitmaps are using. It can be difficult to track every byte allocated, but we should do our best to get the memory usage within 1%. In C++, for STL containers, this can be done with a custom memory allocator that tracks memory allocation. 
+-  We report the memory usage as best we can. Of course, data can always be compressed more or less aggressively to disk, but an important metric is how much RAM the bitmaps are using. It can be difficult to track every byte allocated, but we should do our best to get the memory usage within 1%. In C++, for STL containers, this can be done with a custom memory allocator that tracks memory allocation.
 -  Intersections between successive bitmaps, each time generating a new bitmap. Thus if there are 200 bitmaps, we generate 199 temporary bitmaps representing the intersection. We then query and check the cardinality of the each intermediate bitmap (by summing them up).
 -  Union between successive bitmaps, each time generating a new bitmap. We then query and check the cardinality of the result by summing them up.
 -  We compute the union of the whole set and check the cardinality of the result. This can be done in various ways. A basic way involves doing successive in-place unions which should be the default. In this instance, it is fair to avoid creating temporary bitmaps.
 -  Given that the maximal value stored in any bitmap is N, we check whether integers N/4, N/2 and 3N/4 belong to each bitmap (henceforth a quartile query).
 
-Thus, we output at least 5 numbers: 
+Thus, we output at least 5 numbers:
 - The memory usage, expressed as a floating-point numbers representing the number of bits used by value. In practice, this is computed by counting the number of bits used in RAM divided by the total cardinality. The total cardinality is given by the sum of the cardinalities of all sets. Thus if you have 200 sets each containing 10 values, your total cardinality is 2000, if you use 2000 bytes of memory, then your number of bits per value will be 8.0.
 - The number of CPU cycles used to compute the successive intersections, normalized by the number of input values.
 - The number of CPU cycles used to compute the successive unions, normalized by the number of input values.
@@ -36,7 +36,7 @@ For each competitive technique, we apply the following recipe:
 For a working example, see https://github.com/RoaringBitmap/CBitmapCompetition/blob/master/src/bitset_benchmarks.c
 
 
-Note: for some selected formats, we also include the successive differences (ANDNOT) as well as the symmetric difference (XOR), and also the time required to iterate over all btimaps.
+Note: for some selected formats, we also include the successive differences (ANDNOT) as well as the symmetric difference (XOR), and also the time required to iterate over all bitmaps.
 
 ## Results
 
@@ -45,7 +45,7 @@ GCC 6.2, Skylake processor (3.4 GHz), CRoaring 0.2.3 (Sept. 9 2016).
 For the first column of numbers, smaller is better (it is memory usage) whereas for all other columns, smaller is better (they are CPU cycles per operation).
 
 First column is memory usage per value in bits.
-Second column is 2-by-2 intersection time (with cardinality computation). Third column is 2-by-2 union time (with cardinality computation). 
+Second column is 2-by-2 intersection time (with cardinality computation). Third column is 2-by-2 union time (with cardinality computation).
 Fourth and fifth columns are wide unions times (unions of many sets) using either a naive or a heap-based approach depending on the column.
 Last column is random access time.
 
@@ -298,7 +298,7 @@ If one of the submodules changes and you need to update it and update the projec
 ```bash
 git submodule foreach git pull origin master
 make clean
-make 
+make
 make test
 git commit -a
 git push

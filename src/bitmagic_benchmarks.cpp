@@ -288,7 +288,7 @@ int main(int argc, char **argv) {
     RDTSC_START(cycles_start);
     for (size_t i = 0; i < count; ++i) {
         const bvect & b = bitmaps[i];
-        for(auto j = b.first(); j != b.end(); j++)
+        for(auto j = b.first(); j != b.end(); ++j)
           total_count ++;
     }
     RDTSC_FINAL(cycles_final);
@@ -299,6 +299,8 @@ int main(int argc, char **argv) {
     assert(totalcard == total_count);
 
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
+
+    assert(successive_xor + successive_and == successive_or);
 
     printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f \n",
       data[0]*8.0/totalcard,

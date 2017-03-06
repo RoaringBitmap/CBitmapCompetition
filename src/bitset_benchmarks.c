@@ -222,6 +222,8 @@ int main(int argc, char **argv) {
 
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,successive_andnot,successive_xor,total_or,quartcount);
 
+    assert(successive_xor + successive_and == successive_or);
+
     printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f \n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
