@@ -10,6 +10,13 @@
 #include "numbersfromtextfiles.h"
 #include "roaring.c"
 
+bool roaring_iterator_increment(uint32_t value, void *param) {
+    size_t count;
+    memcpy(&count, param, sizeof(uint64_t));
+    count++;
+    memcpy(param, &count, sizeof(uint64_t));    
+    return true;  // continue till the end
+}
 
 /**
  * Once you have collected all the integers, build the bitmaps.
@@ -224,6 +231,11 @@ int main(int argc, char **argv) {
     RDTSC_START(cycles_start);
     for (size_t i = 0; i < count; ++i) {
         roaring_bitmap_t *ra = bitmaps[i];
+        roaring_iterate(ra, roaring_iterator_increment, &total_count);
+    }
+     /*
+    for (size_t i = 0; i < count; ++i) {
+        roaring_bitmap_t *ra = bitmaps[i];
         roaring_uint32_iterator_t  j;
         roaring_init_iterator(ra, &j);
         while(j.has_value) {
@@ -231,6 +243,7 @@ int main(int argc, char **argv) {
             roaring_advance_uint32_iterator(&j);
         }
     }
+    */
     RDTSC_FINAL(cycles_final);
     data[8] = cycles_final - cycles_start;
     if(verbose) printf("Iterating over %zu bitmaps took %" PRIu64 " cycles\n", count,
