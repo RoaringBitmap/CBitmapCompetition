@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
     const char *extension = ".txt";
     bool verbose = false;
     bool memorysavingmode = false;
-    uint64_t data[9];
+    uint64_t data[13];
     while ((c = getopt(argc, argv, "rve:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
@@ -302,6 +302,53 @@ int main(int argc, char **argv) {
 
     assert(successive_xor + successive_and == successive_or);
 
+
+    /**
+    * and, or, andnot and xor cardinality
+    */
+    uint64_t successive_andcard = 0;
+    uint64_t successive_orcard = 0;
+    uint64_t successive_andnotcard = 0;
+    uint64_t successive_xorcard = 0;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_andcard += gap_count_and(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[9] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_orcard += gap_count_or(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[10] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_andnotcard += gap_count_andnot(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[11] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_xorcard += gap_count_xor(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[12] = cycles_final - cycles_start;
+
+    assert(successive_andcard == successive_and);
+    assert(successive_orcard == successive_or);
+    assert(successive_xorcard == successive_xor);
+    assert(successive_andnotcard == successive_andnot);
+
+    /**
+    * end and, or, andnot and xor cardinality
+    */
+
+
     printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f \n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
@@ -311,7 +358,11 @@ int main(int argc, char **argv) {
       data[5]*1.0/(3*count),
       data[6]*1.0/successivecard,
       data[7]*1.0/successivecard,
-      data[8]*1.0/totalcard
+      data[8]*1.0/totalcard,
+      data[9]*1.0/successivecard,
+      data[10]*1.0/successivecard,
+      data[11]*1.0/successivecard,
+      data[12]*1.0/successivecard
      );
 
 

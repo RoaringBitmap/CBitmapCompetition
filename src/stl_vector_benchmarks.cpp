@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
     int c;
     const char *extension = ".txt";
     bool verbose = false;
-    uint64_t data[9];
+    uint64_t data[13];
     initializeMemUsageCounter();
     while ((c = getopt(argc, argv, "ve:h")) != -1) switch (c) {
         case 'e':
@@ -322,7 +322,11 @@ int main(int argc, char **argv) {
       data[5]*1.0/(3*count),
       data[6]*1.0/successivecard,
       data[7]*1.0/successivecard,
-      data[8]*1.0/totalcard
+      data[8]*1.0/totalcard,
+      data[9]*1.0/successivecard,
+      data[10]*1.0/successivecard,
+      data[11]*1.0/successivecard,
+      data[12]*1.0/successivecard
     );
 
     for (int i = 0; i < (int)count; ++i) {

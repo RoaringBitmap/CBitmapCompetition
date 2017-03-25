@@ -14,7 +14,7 @@ bool roaring_iterator_increment(uint32_t value, void *param) {
     size_t count;
     memcpy(&count, param, sizeof(uint64_t));
     count++;
-    memcpy(param, &count, sizeof(uint64_t));    
+    memcpy(param, &count, sizeof(uint64_t));
     return true;  // continue till the end
 }
 
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
     bool verbose = false;
     bool copyonwrite = false;
     char *extension = ".txt";
-    uint64_t data[9];
+    uint64_t data[13];
     while ((c = getopt(argc, argv, "cvre:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
@@ -253,6 +253,52 @@ int main(int argc, char **argv) {
 
     if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
 
+    /**
+    * and, or, andnot and xor cardinality
+    */
+    uint64_t successive_andcard = 0;
+    uint64_t successive_orcard = 0;
+    uint64_t successive_andnotcard = 0;
+    uint64_t successive_xorcard = 0;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_andcard += roaring_bitmap_and_cardinality(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[9] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_orcard += roaring_bitmap_or_cardinality(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[10] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_andnotcard += roaring_bitmap_andnot_cardinality(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[11] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_xorcard += roaring_bitmap_xor_cardinality(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[12] = cycles_final - cycles_start;
+
+    assert(successive_andcard == successive_and);
+    assert(successive_orcard == successive_or);
+    assert(successive_xorcard == successive_xor);
+    assert(successive_andnotcard == successive_andnot);
+
+    /**
+    * end and, or, andnot and xor cardinality
+    */
+
+
     printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f  %20.2f \n",
            data[0]*8.0/totalcard,
            data[1]*1.0/successivecard,
@@ -262,7 +308,11 @@ int main(int argc, char **argv) {
            data[5]*1.0/(3*count),
            data[6]*1.0/successivecard,
            data[7]*1.0/successivecard,
-           data[8]*1.0/totalcard
+           data[8]*1.0/totalcard,
+           data[9]*1.0/successivecard,
+           data[10]*1.0/successivecard,
+           data[11]*1.0/successivecard,
+           data[12]*1.0/successivecard
           );
 
     for (int i = 0; i < (int)count; ++i) {
