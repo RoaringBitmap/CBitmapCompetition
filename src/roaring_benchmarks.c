@@ -15,6 +15,7 @@ bool roaring_iterator_increment(uint32_t value, void *param) {
     memcpy(&count, param, sizeof(uint64_t));
     count++;
     memcpy(param, &count, sizeof(uint64_t));
+    (void) value;
     return true;  // continue till the end
 }
 
@@ -299,7 +300,7 @@ int main(int argc, char **argv) {
     */
 
 
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f  %20.2f \n",
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f     %20.2f    %20.2f  %20.2f  %20.2f  %20.2f\n",
            data[0]*8.0/totalcard,
            data[1]*1.0/successivecard,
            data[2]*1.0/successivecard,

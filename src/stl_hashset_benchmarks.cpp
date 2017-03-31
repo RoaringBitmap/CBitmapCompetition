@@ -75,12 +75,34 @@ static void intersection(hashset& h1, hashset& h2, hashset& answer) {
   }
 }
 
+static size_t intersection_count(hashset& h1, hashset& h2) {
+  if(h1.size() > h2.size()) {
+    return intersection_count(h2,h1);
+  }
+  size_t answer = 0;
+  for(hashset::iterator i = h1.begin(); i != h1.end(); i++) {
+    if(h2.find(*i) != h2.end()) ++answer;
+  }
+  return answer;
+}
+
+
 static void difference(hashset& h1, hashset& h2, hashset& answer) {
   answer.clear();
   for(hashset::iterator i = h1.begin(); i != h1.end(); i++) {
     if(h2.find(*i) == h2.end())
       answer.insert(*i);
   }
+}
+
+
+static size_t difference_count(hashset& h1, hashset& h2) {
+  size_t answer = 0;
+  for(hashset::iterator i = h1.begin(); i != h1.end(); i++) {
+    if(h2.find(*i) == h2.end())
+      answer++;
+  }
+  return answer;
 }
 
 static void symmetric_difference(hashset& h1, hashset& h2, hashset& answer) {
@@ -95,8 +117,17 @@ static void symmetric_difference(hashset& h1, hashset& h2, hashset& answer) {
   }
 }
 
+static size_t symmetric_difference_count(hashset& h1, hashset& h2) {
+  return h1.size() + h2.size() - 2 * intersection_count(h1,h2);
+}
+
+
 static void inplace_union(hashset& h1, hashset& h2) {
   h1.insert(h2.begin(), h2.end());
+}
+
+static size_t union_count(hashset& h1, hashset& h2) {
+  return h1.size() + h2.size() - intersection_count(h1,h2);
 }
 
 static void printusage(char *command) {
@@ -298,7 +329,51 @@ int main(int argc, char **argv) {
     assert(successive_xor + successive_and == successive_or);
 
 
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f \n",
+    /**
+    * and, or, andnot and xor cardinality
+    */
+    uint64_t successive_andcard = 0;
+    uint64_t successive_orcard = 0;
+    uint64_t successive_andnotcard = 0;
+    uint64_t successive_xorcard = 0;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_andcard += intersection_count(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[9] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_orcard += union_count(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[10] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_andnotcard += difference_count(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[11] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+        successive_xorcard += symmetric_difference_count(bitmaps[i], bitmaps[i + 1]);
+    }
+    RDTSC_FINAL(cycles_final);
+    data[12] = cycles_final - cycles_start;
+
+    assert(successive_andcard == successive_and);
+    assert(successive_orcard == successive_or);
+    assert(successive_xorcard == successive_xor);
+    assert(successive_andnotcard == successive_andnot);
+
+    /**
+    * end and, or, andnot and xor cardinality
+    */
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f     %20.2f    %20.2f  %20.2f  %20.2f  %20.2f\n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
       data[2]*1.0/successivecard,

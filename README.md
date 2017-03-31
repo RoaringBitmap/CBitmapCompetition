@@ -15,8 +15,12 @@ For each of these collections of sets, we do the following :
 - Differences between successive bitmaps (as with intersections and unions above).
 - Symmetric differences between successive bitmaps (as with intersections and unions above).
 - Iteration through all set values.
+- Computing the intersection size between successive sets without materializing the answer.
+- Computing the union size between successive sets without materializing the answer.
+- Computing the difference size between successive sets without materializing the answer.
+- Computing the symmetric intersection size between successive sets without materializing the answer.
 
-Thus, we output at least 5 numbers:
+Thus, we output several numbers:
 - The memory usage, expressed as a floating-point numbers representing the number of bits used by value. In practice, this is computed by counting the number of bits used in RAM divided by the total cardinality. The total cardinality is given by the sum of the cardinalities of all sets. Thus if you have 200 sets each containing 10 values, your total cardinality is 2000, if you use 2000 bytes of memory, then your number of bits per value will be 8.0.
 - The number of CPU cycles used to compute the successive intersections, normalized by the number of input values.
 - The number of CPU cycles used to compute the successive unions, normalized by the number of input values.
@@ -25,7 +29,7 @@ Thus, we output at least 5 numbers:
 - The number of CPU cycles to for each quartile query.
 - The number of CPU cycles used to compute the successive differences, normalized by the number of input values.
 - The number of CPU cycles used to compute the successive symmetric differences, normalized by the number of input values.
-- The number of CPU cycles used to iterate through all values, counting them, normalized by the number of input values. 
+- The number of CPU cycles used to iterate through all values, counting them, normalized by the number of input values.
 The normalization proceeds as follows. For the total union, we divide by the sum of the cardinality of all sets. For the successive intersections and unions, we divide by the number the sum of the cardinalities of the pairs of sets (so that, effectively, all but the first and last sets count twice).
 
 For each competitive technique, we apply the following recipe:

@@ -313,28 +313,28 @@ int main(int argc, char **argv) {
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
-        successive_andcard += gap_count_and(bitmaps[i], bitmaps[i + 1]);
+        successive_andcard += count_and(bitmaps[i], bitmaps[i + 1]);
     }
     RDTSC_FINAL(cycles_final);
     data[9] = cycles_final - cycles_start;
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
-        successive_orcard += gap_count_or(bitmaps[i], bitmaps[i + 1]);
+        successive_orcard += count_or(bitmaps[i], bitmaps[i + 1]);
     }
     RDTSC_FINAL(cycles_final);
     data[10] = cycles_final - cycles_start;
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
-        successive_andnotcard += gap_count_andnot(bitmaps[i], bitmaps[i + 1]);
+        successive_andnotcard += count_sub(bitmaps[i], bitmaps[i + 1]);
     }
     RDTSC_FINAL(cycles_final);
     data[11] = cycles_final - cycles_start;
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
-        successive_xorcard += gap_count_xor(bitmaps[i], bitmaps[i + 1]);
+        successive_xorcard += count_xor(bitmaps[i], bitmaps[i + 1]);
     }
     RDTSC_FINAL(cycles_final);
     data[12] = cycles_final - cycles_start;
@@ -349,7 +349,7 @@ int main(int argc, char **argv) {
     */
 
 
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f \n",
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f     %20.2f    %20.2f  %20.2f  %20.2f  %20.2f\n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
       data[2]*1.0/successivecard,

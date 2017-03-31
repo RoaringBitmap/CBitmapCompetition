@@ -34,6 +34,23 @@ uint64_t getMemUsageInBytes()  {
     return memory_usage;
 }
 
+// credit http://stackoverflow.com/questions/37767585/count-elements-in-union-of-two-sets-using-stl
+template <typename T>
+class count_back_inserter {
+public:
+    uint64_t & count;
+    typedef void value_type;
+    typedef void difference_type;
+    typedef void pointer;
+    typedef void reference;
+    typedef std::output_iterator_tag iterator_category;
+    count_back_inserter(uint64_t & c) : count(c) {};
+    void operator=(const T &){ }
+    count_back_inserter &operator *(){ return *this; }
+    count_back_inserter &operator++(){ count++;return *this; }
+
+};
+typedef count_back_inserter<uint32_t> inserter;
 
 #ifdef MEMTRACKED
 typedef std::vector<uint32_t,MemoryCountingAllocator<uint32_t> >  vector;
@@ -312,8 +329,52 @@ int main(int argc, char **argv) {
 
     assert(successive_xor + successive_and == successive_or);
 
+    /**
+    * and, or, andnot and xor cardinality
+    */
+    uint64_t successive_andcard = 0;
+    uint64_t successive_orcard = 0;
+    uint64_t successive_andnotcard = 0;
+    uint64_t successive_xorcard = 0;
 
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f \n",
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+      std::set_intersection(bitmaps[i].begin(), bitmaps[i].end(),bitmaps[i+1].begin(), bitmaps[i+1].end(),inserter(successive_andcard));
+    }
+    RDTSC_FINAL(cycles_final);
+    data[9] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+      std::set_union(bitmaps[i].begin(), bitmaps[i].end(),bitmaps[i+1].begin(), bitmaps[i+1].end(),inserter(successive_orcard));
+    }
+    RDTSC_FINAL(cycles_final);
+    data[10] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+      std::set_difference(bitmaps[i].begin(), bitmaps[i].end(),bitmaps[i+1].begin(), bitmaps[i+1].end(),inserter(successive_andnotcard));
+    }
+    RDTSC_FINAL(cycles_final);
+    data[11] = cycles_final - cycles_start;
+
+    RDTSC_START(cycles_start);
+    for (int i = 0; i < (int)count - 1; ++i) {
+      std::set_symmetric_difference(bitmaps[i].begin(), bitmaps[i].end(),bitmaps[i+1].begin(), bitmaps[i+1].end(),inserter(successive_xorcard));
+    }
+    RDTSC_FINAL(cycles_final);
+    data[12] = cycles_final - cycles_start;
+
+    assert(successive_andcard == successive_and);
+    assert(successive_orcard == successive_or);
+    assert(successive_xorcard == successive_xor);
+    assert(successive_andnotcard == successive_andnot);
+
+    /**
+    * end and, or, andnot and xor cardinality
+    */
+
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f     %20.2f    %20.2f  %20.2f  %20.2f  %20.2f\n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
       data[2]*1.0/successivecard,

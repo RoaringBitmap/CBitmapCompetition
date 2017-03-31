@@ -220,7 +220,6 @@ int main(int argc, char **argv) {
     }
     RDTSC_FINAL(cycles_final);
     data[8] = cycles_final - cycles_start;
-    assert(total_count == totalcard);
 
     if(verbose) printf("Iterating over %zu bitmaps took %" PRIu64 " cycles\n", count,
            cycles_final - cycles_start);
@@ -236,6 +235,12 @@ int main(int argc, char **argv) {
     uint64_t successive_orcard = 0;
     uint64_t successive_andnotcard = 0;
     uint64_t successive_xorcard = 0;
+    for (int i = 0; i < (int)count - 1; ++i) {
+        assert(bitmaps[i].logicalandcount(bitmaps[i + 1]) == bitmaps[i].logicaland(bitmaps[i + 1]).numberOfOnes());
+        assert(bitmaps[i].logicalorcount(bitmaps[i + 1]) == bitmaps[i].logicalor(bitmaps[i + 1]).numberOfOnes());
+        assert(bitmaps[i].logicalxorcount(bitmaps[i + 1]) == bitmaps[i].logicalxor(bitmaps[i + 1]).numberOfOnes());
+        assert(bitmaps[i].logicalandnotcount(bitmaps[i + 1]) == bitmaps[i].logicalandnot(bitmaps[i + 1]).numberOfOnes());
+    }
 
     RDTSC_START(cycles_start);
     for (int i = 0; i < (int)count - 1; ++i) {
@@ -266,16 +271,17 @@ int main(int argc, char **argv) {
     data[12] = cycles_final - cycles_start;
 
     assert(successive_andcard == successive_and);
-    assert(successive_orcard == successive_or);
     assert(successive_xorcard == successive_xor);
     assert(successive_andnotcard == successive_andnot);
+    assert(successive_orcard == successive_or);
 
     /**
     * end and, or, andnot and xor cardinality
     */
+    assert(total_count == totalcard);
 
 
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f \n",
+    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f     %20.2f    %20.2f  %20.2f  %20.2f  %20.2f\n",
       data[0]*8.0/totalcard,
       data[1]*1.0/successivecard,
       data[2]*1.0/successivecard,
