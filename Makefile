@@ -27,7 +27,7 @@ endif # debug
 UNAME := $(shell uname)
 
 
-EXECUTABLES=wah32_benchmarks concise_benchmarks roaring_benchmarks slow_roaring_benchmarks  bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks stl_vector_benchmarks_memtracked stl_hashset_benchmarks_memtracked bitset_benchmarks malloced_roaring_benchmarks
+EXECUTABLES=wah32_benchmarks concise_benchmarks roaring_benchmarks slow_roaring_benchmarks  bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks stl_vector_benchmarks_memtracked stl_hashset_benchmarks_memtracked bitset_benchmarks malloced_roaring_benchmarks hot_roaring_benchmarks hot_slow_roaring_benchmarks
 
 all: $(EXECUTABLES)
 
@@ -42,12 +42,18 @@ roaring_benchmarks : src/roaring.c src/roaring_benchmarks.c
 	$(CC) $(CFLAGS) -o roaring_benchmarks src/roaring_benchmarks.c
 
 
+hot_roaring_benchmarks : src/roaring.c src/hot_roaring_benchmarks.c
+	$(CC) $(CFLAGS)  -ggdb -o hot_roaring_benchmarks src/hot_roaring_benchmarks.c
+
 malloced_roaring_benchmarks : src/roaring.c src/roaring_benchmarks.c
 	$(CC) $(CFLAGS) -o malloced_roaring_benchmarks src/roaring_benchmarks.c -DRECORD_MALLOCS
 
 
 slow_roaring_benchmarks : src/roaring.c src/roaring_benchmarks.c
 	$(CC) $(CFLAGS) -DDISABLE_X64 -o slow_roaring_benchmarks src/roaring_benchmarks.c
+
+hot_slow_roaring_benchmarks : src/roaring.c src/hot_roaring_benchmarks.c
+	$(CC) $(CFLAGS)   -ggdb  -DDISABLE_X64 -o hot_slow_roaring_benchmarks src/hot_roaring_benchmarks.c
 
 
 bitmagic_benchmarks: src/bitmagic_benchmarks.cpp
