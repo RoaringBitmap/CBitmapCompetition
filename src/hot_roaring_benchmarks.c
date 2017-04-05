@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
       break;
     case 'm':
       mode = optarg;
-      printf("setting mode: %s \n", mode);
+      if(verbose) printf("setting mode: %s \n", mode);
       break;
     case 'v':
       verbose = true;
@@ -157,7 +157,7 @@ int main(int argc, char **argv) {
   RDTSC_FINAL(cycles_final);
 
   const size_t init_cycles = cycles_final - cycles_start;
-  printf("init_cycles = %zu \n", init_cycles);
+  if(verbose) printf("init_cycles = %zu \n", init_cycles);
   size_t main_cycles = 0;
   size_t loops = 0;
   size_t bogus = 0;
@@ -238,11 +238,10 @@ int main(int argc, char **argv) {
 
     RDTSC_FINAL(cycles_final);
     main_cycles += cycles_final - cycles_start;
-//    printf("main_cycles = %f \n", (double)main_cycles/(double)init_cycles);
 
   }
 
-  printf("repeated %zu times \n", loops);
+  if(verbose) printf("repeated %zu times \n", loops);
   for (int i = 0; i < (int)count; ++i) {
     free(numbers[i]);
     numbers[i] = NULL; // paranoid
