@@ -80,7 +80,6 @@ int main(int argc, char **argv) {
   bool copyonwrite = false;
   char *extension = ".txt";
   char *mode = "none specified";
-  uint64_t data[13];
   uint64_t cycles_start = 0, cycles_final = 0;
 
   RDTSC_START(cycles_start);
