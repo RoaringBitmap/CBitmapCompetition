@@ -151,7 +151,6 @@ int main(int argc, char **argv) {
     return -1;
   if (verbose)
     printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
-  data[0] = totalsize;
   if (verbose)
     printf("Total size in bytes =  %" PRIu64 " \n", totalsize);
   RDTSC_FINAL(cycles_final);
