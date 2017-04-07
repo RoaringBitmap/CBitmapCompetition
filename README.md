@@ -392,3 +392,14 @@ git push
 ```
 
 Warning: issuing the command ``git submodule foreach git pull origin master`` while in the main directory or simply the command ``git pull origin master`` while in a submodule will change the repository because submodules are fixed to a given version, and you are updating the version to the latest available.
+
+
+## Using perf for analysis
+
+Example: 
+
+```bash
+$ perf record --call-graph dwarf ./hot_roaring_benchmarks -r  -m  wideunion CRoaring/benchmarks/realdata/census1881_srt
+$ perf report --call-graph
+```
+
