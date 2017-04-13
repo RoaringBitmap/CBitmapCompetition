@@ -30,6 +30,11 @@ Thus, we output several numbers:
 - The number of CPU cycles used to compute the successive differences, normalized by the number of input values.
 - The number of CPU cycles used to compute the successive symmetric differences, normalized by the number of input values.
 - The number of CPU cycles used to iterate through all values, counting them, normalized by the number of input values.
+- The number of CPU cycles used to compute the size of successive intersections, normalized by the number of input values.
+- The number of CPU cycles used to compute the size of successive unions, normalized by the number of input values.
+- The number of CPU cycles used to compute the size of successive differences, normalized by the number of input values.
+- The number of CPU cycles used to compute the size of successive symmetric differences, normalized by the number of input values.
+
 The normalization proceeds as follows. For the total union, we divide by the sum of the cardinality of all sets. For the successive intersections and unions, we divide by the number the sum of the cardinalities of the pairs of sets (so that, effectively, all but the first and last sets count twice).
 
 For each competitive technique, we apply the following recipe:
