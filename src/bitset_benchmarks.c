@@ -38,6 +38,13 @@ int bitset_size_compare (const void * a, const void * b) {
    return ( bitset_size_in_bytes(*(const bitset_t**)a) - bitset_size_in_bytes(*(const bitset_t**)b) );
 }
 
+bool increment(size_t value, void *param) {
+   uint64_t k; 
+   memcpy(&k, param, sizeof(uint64_t));
+   k += 1;
+   memcpy(param, &k, sizeof(uint64_t));
+   return true;
+}
 
 int main(int argc, char **argv) {
     int c;
@@ -209,9 +216,10 @@ int main(int argc, char **argv) {
     RDTSC_START(cycles_start);
     for (size_t i = 0; i < count; ++i) {
         bitset_t * b = bitmaps[i];
-        for(size_t j = 0; nextSetBit(b,&j) ; j++) {
-            total_count++;
-        }
+        bitset_for_each(b,increment,&total_count);
+        //for(size_t j = 0; nextSetBit(b,&j) ; j++) {
+        //    total_count++;
+        //}
     }
     RDTSC_FINAL(cycles_final);
     data[8] = cycles_final - cycles_start;
