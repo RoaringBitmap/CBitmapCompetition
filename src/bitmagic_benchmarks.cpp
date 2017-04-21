@@ -34,9 +34,9 @@ static std::vector<bvect > create_all_bitmaps(size_t *howmany,
         uint32_t **numbers, size_t count, bool memorysavingmode) {
     if (numbers == NULL) return std::vector<bvect >();
     // we work hard to create the bitsets in memory-saving mode
-    std::vector<bvect > answer(count);
+    std::vector<bvect > answer;
     for (size_t i = 0; i < count; i++) {
-        bvect & bm = answer[i];
+        bvect bm(0);
         if(memorysavingmode) {
           bm.set_new_blocks_strat(bm::BM_GAP);
         }
@@ -47,6 +47,7 @@ static std::vector<bvect > create_all_bitmaps(size_t *howmany,
         if(memorysavingmode) {
           bm.optimize();// this might be useless, redundant...
         }
+        answer.push_back(bm);
     }
     return answer;
 }
