@@ -58,6 +58,7 @@ static std::vector<hashset> create_all_bitmaps(size_t *howmany,
         for(size_t j = 0; j < howmany[i] ; ++j) {
             bm.insert(mynumbers[j]);
         }
+        bm.rehash(howmany[i]);
     }
     return answer;
 }
