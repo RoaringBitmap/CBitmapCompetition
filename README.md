@@ -4,7 +4,7 @@
 The goal of this project is to compare on realistic data different C and C++ techniques representing sets of integers.
 
 We start from a collection of sets of sorted integers.
-For example, we might have 200 sets.
+For example, we might have 200 sets. This collection of sets is considered immutable (none of the benchmarks are allowed to modify them).
 For each of these collections of sets, we do the following :  
 
 -  We report the memory usage as best we can. Of course, data can always be compressed more or less aggressively to disk, but an important metric is how much RAM the bitmaps are using. It can be difficult to track every byte allocated, but we should do our best to get the memory usage within 1%. In C++, for STL containers, this can be done with a custom memory allocator that tracks memory allocation.
