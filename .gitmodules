@@ -10,3 +10,6 @@
 [submodule "Concise"]
 	path = Concise
 	url = https://github.com/lemire/Concise.git
+[submodule "BitMagic"]
+	path = BitMagic
+	url = https://github.com/tlk00/BitMagic
