@@ -33,6 +33,10 @@ all: $(EXECUTABLES)
 test:
 	./scripts/all.sh
 
+test:
+	./scripts/big.sh
+
+
 
 src/roaring.c :
 	(cd src && exec ../CRoaring/amalgamation.sh && rm almagamation_demo.c && rm almagamation_demo.cpp)
