@@ -33,7 +33,7 @@ all: $(EXECUTABLES)
 test:
 	./scripts/all.sh
 
-test:
+bigtest:
 	./scripts/big.sh
 
 
