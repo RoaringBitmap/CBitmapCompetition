@@ -5,6 +5,7 @@
 #include <vector>
 #include <cassert>
 #include <unordered_set>
+#include <algorithm>
 
 using namespace std;
 
