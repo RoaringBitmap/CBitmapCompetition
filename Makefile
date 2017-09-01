@@ -26,7 +26,7 @@ endif # debug
 
 
 
-EXECUTABLES=wah32_benchmarks concise_benchmarks roaring_benchmarks slow_roaring_benchmarks  bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks stl_vector_benchmarks_memtracked stl_hashset_benchmarks_memtracked bitset_benchmarks malloced_roaring_benchmarks hot_roaring_benchmarks hot_slow_roaring_benchmarks
+EXECUTABLES=wah32_benchmarks concise_benchmarks roaring_benchmarks slow_roaring_benchmarks  bitmagic_benchmarks ewah32_benchmarks ewah64_benchmarks stl_vector_benchmarks stl_hashset_benchmarks stl_vector_benchmarks_memtracked stl_hashset_benchmarks_memtracked bitset_benchmarks malloced_roaring_benchmarks hot_roaring_benchmarks hot_slow_roaring_benchmarks gen
 
 all: $(EXECUTABLES)
 
@@ -36,6 +36,9 @@ test:
 
 src/roaring.c :
 	(cd src && exec ../CRoaring/amalgamation.sh && rm almagamation_demo.c && rm almagamation_demo.cpp)
+
+gen : synthetic/anh_moffat_clustered.h synthetic/gen.cpp
+	$(CXX) $(CXXFLAGS) -o gen synthetic/gen.cpp -Isynthetic
 
 roaring_benchmarks : src/roaring.c src/roaring_benchmarks.c
 	$(CC) $(CFLAGS) -o roaring_benchmarks src/roaring_benchmarks.c
