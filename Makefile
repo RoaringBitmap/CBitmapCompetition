@@ -90,4 +90,4 @@ bitset_benchmarks: src/bitset_benchmarks.c cbitset/include/bitset.h cbitset/src/
 	$(CC) $(CFLAGS)  -o bitset_benchmarks ./src/bitset_benchmarks.c cbitset/src/bitset.c   -Icbitset/include
 
 clean:
-	rm -r -f   $(EXECUTABLES) src/roaring.c src/roaring.h src/roaring.hh
+	rm -r -f   $(EXECUTABLES) src/roaring.c src/roaring.h src/roaring.hh bigtmp
