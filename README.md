@@ -368,6 +368,62 @@ Where it appears, the "-r" flag means "with better compression". The "-c" flag m
 
 ```
 
+
+```bash
+$ ./scripts/big.sh
+
+# For each data set, we print data size (in bits per value), successive intersections, successive unions and total unions [we compute the total  union first na
+ively and then (if supported) using a heap-based approach], followed by quartile point queries (in cycles per input value), successive differences, successive
+symmetric differences, iterations through all values, then we have pairwise count aggregates for successive intersections, successive unions, successive differ
+ences, successive symmetric differences
+# bitset_benchmarks
+               100.00                25.35                25.37                 5.01                 5.01                 4.92                 25.32
+      25.37                    28.90                    2.27                  2.14                  2.28                  2.27
+# stl_vector_benchmarks
+                 0.00                11.20                14.46               457.04               134.96              1911.23                 14.44
+      16.63                     0.00                    8.23                  8.92                  9.27                  8.29
+# stl_vector_benchmarks_memtracked
+                32.00                11.67                15.67               481.40               108.32              2041.98                 15.08
+      17.56                     0.00                    8.38                  8.21                  9.10                  8.24
+# stl_hashset_benchmarks_memtracked
+# stl_hashset_benchmarks
+# bitmagic_benchmarks
+               100.05                 8.97                 9.21                 4.80                 5.37                15.33                  9.17
+       9.20                    78.84                    2.61                  2.95                  2.92                  2.95
+# bitmagic_benchmarks -r
+                38.52                 8.80                10.10                 3.94                 5.32                65.32                  8.25
+      10.20                    46.55                    5.64                  9.08                  7.50                  9.29
+# slow_roaring_benchmarks -r
+                13.51                 8.11                 9.34                 4.79                11.74               284.75                  8.33
+       9.19                     7.10                    6.82                  6.81                  6.82                  6.81
+# malloced_roaring_benchmarks -r
+                13.74                 3.99                 6.17                 3.90                 9.71               278.79                  4.67
+       6.49                     7.05                    1.41                  1.39                  1.41                  1.39
+# roaring_benchmarks -r
+                13.51                 2.58                 4.97                 3.87                 8.04               381.29                  2.48
+       4.09                     6.87                    1.37                  1.35                  1.37                  1.35
+# roaring_benchmarks -c -r
+                13.51                 2.58                 4.32                 3.86                 8.04               383.19                  2.47
+       4.08                     6.87                    1.37                  1.35                  1.38                  1.35
+# roaring_benchmarks
+                13.51                 2.58                 4.98                 3.87                 8.02               387.15                  2.48
+       4.09                     6.87                    1.36                  1.35                  1.37                  1.35
+# roaring_benchmarks -c
+                13.51                 2.58                 4.44                 3.87                 8.03               379.28                  2.47
+       4.08                     6.87                    1.37                  1.35                  1.37                  1.35
+# ewah32_benchmarks
+# ewah64_benchmarks
+                50.33                14.70                24.31                33.17                42.03          15554502.25                 20.09
+      24.35                    23.42                   11.11                 14.29                 12.30                 14.25
+# wah32_benchmarks
+                33.79                24.52                34.85                68.66                65.75          58645138.60                 31.40
+      34.78                    27.31                   16.24                 16.50                 16.76                 16.55
+# concise_benchmarks
+                22.56                27.79                37.54                69.49                77.28          48014150.67                 32.98
+      37.83                    27.60                   18.91                 19.30                 18.90                 19.19
+```
+
+
 ## Usage
 
 This project uses submodules as dependencies.
