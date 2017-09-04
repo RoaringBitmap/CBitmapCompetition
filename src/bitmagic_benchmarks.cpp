@@ -19,8 +19,9 @@ extern "C" {
 }
 #endif
 
-#define BMSSE2OPT // for good measure we enable SSE2
-#define BMSSE42OPT // to enable SSE4 optimizations
+// flags recommended by BitMagic author.
+#define BM64OPT  
+#define BMSSE42OPT 
 
 #include "bm.h" /* bit magic */
 #include "bmserial.h" /* bit magic, serialization routines */
