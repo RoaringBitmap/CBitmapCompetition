@@ -387,12 +387,10 @@ ences, successive symmetric differences
       17.56                     0.00                    8.38                  8.21                  9.10                  8.24
 # stl_hashset_benchmarks_memtracked
 # stl_hashset_benchmarks
-# bitmagic_benchmarks
                100.05                 8.97                 9.21                 4.80                 5.37                15.33                  9.17
        9.20                    78.84                    2.61                  2.95                  2.92                  2.95
 # bitmagic_benchmarks -r
-                38.52                 8.80                10.10                 3.94                 5.32                65.32                  8.25
-      10.20                    46.55                    5.64                  9.08                  7.50                  9.29
+                38.52                 9.11                 9.77                 3.92                 5.29                82.06                  8.05                  9.91                    46.28                    5.16                  8.89                  7.24                  9.17
 # slow_roaring_benchmarks -r
                 13.51                 8.11                 9.34                 4.79                11.74               284.75                  8.33
        9.19                     7.10                    6.82                  6.81                  6.82                  6.81
