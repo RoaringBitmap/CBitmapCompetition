@@ -19,7 +19,7 @@ CFLAGS = -fuse-ld=gold -fPIC  -std=c99 -ggdb -mavx2 -mbmi2 -march=native -Wall -
 CXXFLAGS = -fuse-ld=gold -fPIC  -std=c++11 -ggdb -mavx2 -mbmi2 -march=native -Wall -Wextra -Wshadow -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address -Wno-deprecated-register  $(OSFLAGS) -ldl
 ROARFLAGS = -DCMAKE_BUILD_TYPE=Debug -DSANITIZE=ON
 else
-CFLAGS = -fPIC -std=c99 -O3 -mavx2 -mbmi2 -march=native -Wall -Wextra -Wshadow   $(OSFLAGS) -ldl
+CFLAGS = -ggdb -fPIC -std=c99 -O3 -mavx2 -mbmi2 -march=native -Wall -Wextra -Wshadow   $(OSFLAGS) -ldl
 CXXFLAGS = -fPIC -std=c++11 -O3 -mavx2 -mbmi2  -march=native -Wall -Wextra -Wshadow -Wno-deprecated-register  $(OSFLAGS) -ldl
 ROARFLAGS = -DCMAKE_BUILD_TYPE=Release
 endif # debug
