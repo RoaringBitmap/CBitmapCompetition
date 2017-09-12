@@ -36,6 +36,10 @@ test:
 bigtest:
 	./scripts/big.sh
 
+hottest:
+	./scripts/hot_roaring.sh
+
+
 
 
 src/roaring.c :

@@ -437,6 +437,19 @@ make
 make test
 ```
 
+There are additional tests. To benchmark with a large synthetic dataset, do :
+```bash
+make bigtest
+```
+
+To find "hot" functions in roaring, do:
+
+```bash
+make hottest
+```
+
+
+
 Be aware that if you call ``git pull`` while in a submodule, you are *updating* the project for everyone. Try to stick as much as possible with the ``git pull && git submodule init && git submodule update && git submodule status`` as it is safest (it only impacts your local copy).
 
 ## Usage for developers of the project
