@@ -14,13 +14,26 @@ ifeq ($(UNAME), Linux)
 OSFLAGS= -Wl,--no-as-needed
 endif
 
+#######################
+# SunOS gcc7.2.0 modifications QSI/Jon Strabala
+#########
+# original CXX flag, new for FLAGS
+ifeq ($(UNAME), SunOS)
+# must be 64 bit compile, new for CFLAGS
+OSFLAGS= -m64
+# force gnu99 intead of c99 for getopt, new for CFLAGS
+OSCFLAGS= -std=gnu99
+endif
+
+
+
 ifeq ($(DEBUG),1)
-CFLAGS = -fuse-ld=gold -fPIC  -std=c99 -ggdb -mavx2 -mbmi2 -march=native -Wall -Wextra -Wshadow -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address  $(OSFLAGS) -ldl
-CXXFLAGS = -fuse-ld=gold -fPIC  -std=c++11 -ggdb -mavx2 -mbmi2 -march=native -Wall -Wextra -Wshadow -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address -Wno-deprecated-register  $(OSFLAGS) -ldl
+CFLAGS = -fuse-ld=gold -fPIC  -std=c99 -ggdb -mavx2 -mbmi2 -march=native -Wall -Wextra -Wshadow -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address  $(OSFLAGS) $(OSCFLAGS) -ldl
+CXXFLAGS = -fuse-ld=gold -fPIC  -std=c++11 -ggdb -mavx2 -mbmi2 -march=native -Wall -Wextra -Wshadow -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address   $(OSFLAGS) -ldl
 ROARFLAGS = -DCMAKE_BUILD_TYPE=Debug -DSANITIZE=ON
 else
 CFLAGS = -ggdb -fPIC -std=c99 -O3 -mavx2 -mbmi2 -march=native -Wall -Wextra -Wshadow   $(OSFLAGS) -ldl
-CXXFLAGS = -fPIC -std=c++11 -O3 -mavx2 -mbmi2  -march=native -Wall -Wextra -Wshadow -Wno-deprecated-register  $(OSFLAGS) -ldl
+CXXFLAGS = -fPIC -std=c++11 -O3 -mavx2 -mbmi2  -march=native -Wall -Wextra -Wshadow   $(OSFLAGS) -ldl
 ROARFLAGS = -DCMAKE_BUILD_TYPE=Release
 endif # debug
 

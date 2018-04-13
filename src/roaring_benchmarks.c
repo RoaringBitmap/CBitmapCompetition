@@ -325,6 +325,8 @@ int main(int argc, char **argv) {
     free(bitmaps);
     free(howmany);
     free(numbers);
-
+#ifdef DMALLOC // for Jon Strabala
+  dmalloc_verify(0L);
+#endif
     return 0;
 }

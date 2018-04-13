@@ -469,10 +469,41 @@ Warning: issuing the command ``git submodule foreach git pull origin master`` wh
 
 ## Using perf for analysis
 
-Example: 
+Example:
 
 ```bash
 $ perf record --call-graph dwarf ./hot_roaring_benchmarks -r  -m  wideunion CRoaring/benchmarks/realdata/census1881_srt
 $ perf report --call-graph
 ```
 
+
+## Use Dmalloc
+
+Some users would prefer to rely on [Dmalloc](http://dmalloc.com) to monitor memory usage. You can get the desired result by first building Dmalloc:
+
+```
+wget http://dmalloc.com/releases/dmalloc-5.5.2.tgz
+tar xzf dmalloc-5.5.2.tgz
+cd ./dmalloc-5.5.2
+./configure
+make
+cd ..
+```
+
+(On some older systems you might need the ``-m64`` flag. If that is needed, you can type ``export CFLAGS=-m64; export LDFLAGS=-m64;``.)
+
+Then you can copy the current ``Makefile`` to a file named  ``makefile`` (it will have priority over ``Makefile``)  and replace the ``malloced_roaring_benchmarks`` target
+by the following:
+
+```
+malloced_roaring_benchmarks : src/roaring.c src/roaring_benchmarks.c
+	$(CC) $(CFLAGS) -I./dmalloc-5.5.2/ -o malloced_roaring_benchmarks src/roaring_benchmarks.c -DDMALLOC -DDMALLOC_FUNC_CHECK -L./dmalloc-5.5.2/ -ldmalloc ;
+	@echo ''
+	@echo '   Note malloced_roaring_benchmarks is linked with ./dmalloc-5.5.2/libdmalloc.a' ;
+	@echo '   to generate a logfile when running malloced_roaring_benchmarks quixk example:' ;
+	@echo '      setenv DMALLOC_OPTIONS log-stats,log=logfile,check-heap,log-non-free,check-fence' ;
+	@echo '   Then inspect the new log called 'logfile' after the run (ref: http://dmalloc.com/' ;
+	@echo ''
+```
+
+Credit: Jon Strabala
